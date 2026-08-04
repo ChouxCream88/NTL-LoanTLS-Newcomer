@@ -1,0 +1,1664 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Newcomer Training Report · Loan Telesales</title>
+<!-- Non-blocking font load: page renders immediately with system fonts, Google Fonts swap in when available -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap"></noscript>
+<script>
+// fallback loader — if cdnjs is blocked, try unpkg/jsdelivr. Defined BEFORE the
+// library tags so their onerror handlers can find it.
+function loadFallback(which){
+  const alt={
+    xlsx:['https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js','https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js'],
+    docx:['https://unpkg.com/docx@7.8.2/build/index.js','https://cdn.jsdelivr.net/npm/docx@7.8.2/build/index.js'],
+    html2pdf:['https://unpkg.com/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js','https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js']
+  }[which]||[];
+  (function tryNext(i){
+    if(i>=alt.length)return;
+    const s=document.createElement('script');s.src=alt[i];s.onerror=()=>tryNext(i+1);document.head.appendChild(s);
+  })(0);
+}
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" onerror="loadFallback('xlsx')"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/docx/7.8.2/docx.js" onerror="loadFallback('docx')"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" onerror="loadFallback('html2pdf')"></script>
+<style>
+/* Non-blocking Google Fonts — loaded via JS to prevent render blocking */
+:root{
+  --ink:#101418; --ink-soft:#3a434d; --muted:#7a848e;
+  --paper:#ffffff; --canvas:#eef0f2; --line:#dde1e5; --line-soft:#eaedf0;
+  --brand:#f5a623;        /* NTL amber */
+  --brand-deep:#c67f0a;
+  --steel:#1f3a5f;        /* deep steel blue */
+  --steel-soft:#e8eef5;
+  --good:#2f8f5b; --good-bg:#e7f3ec;
+  --warn:#c0672a; --warn-bg:#fbeee2;
+  --bad:#c23b3b; --bad-bg:#fbe9e9;
+  --radius:10px;
+  color-scheme:light;
+}
+html[data-theme="dark"]{
+  --ink:#e8ebef; --ink-soft:#b3bcc6; --muted:#85909c;
+  --paper:#1a1f26; --canvas:#12161c; --line:#2e353f; --line-soft:#242b33;
+  --brand:#f5b544;
+  --brand-deep:#e09a2e;
+  --steel:#6ea3d8;        /* lighter steel for contrast on dark */
+  --steel-soft:#22303f;
+  --good:#4bb87c; --good-bg:#172b21;
+  --warn:#d98a4e; --warn-bg:#2e2116;
+  --bad:#e05c5c; --bad-bg:#2e1919;
+  color-scheme:dark;
+}
+/* dark-mode fixes for hardcoded light surfaces */
+html[data-theme="dark"] .topbar{background:rgba(26,31,38,.9)}
+html[data-theme="dark"] .metacell{background:var(--paper)}
+html[data-theme="dark"] .coach-ic,
+html[data-theme="dark"] .coach-badge,
+html[data-theme="dark"] .finding .ic{background:var(--paper)}
+html[data-theme="dark"] .mfield input:focus,
+html[data-theme="dark"] .mfield select:focus,
+html[data-theme="dark"] .fb-field textarea:focus{background:var(--canvas)}
+html[data-theme="dark"] .kpi,
+html[data-theme="dark"] .dash-card{box-shadow:0 1px 3px rgba(0,0,0,.4)}
+html[data-theme="dark"] .modal{box-shadow:0 20px 60px rgba(0,0,0,.6)}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--canvas);color:var(--ink);font-family:'IBM Plex Sans Thai','Sarabun','Noto Sans Thai',system-ui,-apple-system,sans-serif;font-size:14px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.mono{font-family:'IBM Plex Mono','Courier New',monospace;font-variant-numeric:tabular-nums}
+button{font-family:inherit;cursor:pointer;border:none;background:none}
+h1,h2,h3,h4{line-height:1.25;font-weight:600}
+
+/* ===== App shell ===== */
+.app{display:grid;grid-template-columns:288px 1fr;min-height:100vh}
+.sidebar{background:var(--paper);border-right:1px solid var(--line);position:sticky;top:0;height:100vh;overflow-y:auto;display:flex;flex-direction:column}
+.brandbar{padding:20px 22px 16px;border-bottom:1px solid var(--line)}
+.brandbar .mark{display:flex;align-items:center;gap:10px}
+.brandbar .chip{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--brand),var(--brand-deep));display:grid;place-items:center;color:#fff;font-weight:700;font-size:15px;box-shadow:0 2px 6px rgba(198,127,10,.35)}
+.brandbar h1{font-size:15px;letter-spacing:-.01em}
+.brandbar p{font-size:11.5px;color:var(--muted);margin-top:1px}
+.searchbox{padding:12px 16px;border-bottom:1px solid var(--line-soft)}
+.searchbox input{width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:8px;font-family:inherit;font-size:13px;background:var(--canvas)}
+.searchbox input:focus{outline:2px solid var(--steel-soft);border-color:var(--steel)}
+.addbtn{width:100%;margin-top:8px;display:flex;align-items:center;justify-content:center;gap:6px;padding:9px;border-radius:8px;background:var(--brand);color:#fff;font-size:12.5px;font-weight:600;transition:.12s}
+.addbtn:hover{background:var(--brand-deep)}
+.addbtn svg{width:15px;height:15px}
+.uploadbtn{width:100%;margin-top:8px;display:flex;align-items:center;justify-content:center;gap:6px;padding:9px;border-radius:8px;background:var(--paper);border:1px solid var(--steel);color:var(--steel);font-size:12.5px;font-weight:600;transition:.12s}
+.uploadbtn:hover{background:var(--steel-soft)}
+.uploadbtn svg{width:15px;height:15px}
+.navbtns{padding:12px 16px 0}
+.navbtn{width:100%;display:flex;align-items:center;gap:9px;padding:10px 12px;border-radius:9px;font-size:13px;font-weight:600;color:var(--ink-soft);background:var(--canvas);transition:.12s}
+.navbtn svg{width:17px;height:17px}
+.navbtn:hover{background:var(--steel-soft);color:var(--steel)}
+.navbtn.active{background:var(--steel);color:#fff}
+/* dashboard */
+.dash{padding:4px 2px}
+.dash-h{margin-bottom:20px}
+.dash-h h2{font-size:22px;letter-spacing:-.02em;color:var(--ink)}
+.dash-h p{font-size:13px;color:var(--muted);margin-top:3px}
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:24px}
+.kpi{background:var(--paper);border:1px solid var(--line);border-radius:11px;padding:15px 16px;position:relative;overflow:hidden}
+.kpi .kv{font-size:27px;font-weight:700;line-height:1;letter-spacing:-.02em}
+.kpi .kl{font-size:11.5px;color:var(--muted);margin-top:5px;text-transform:uppercase;letter-spacing:.04em}
+.kpi .ks{font-size:11.5px;color:var(--ink-soft);margin-top:4px}
+.kpi .kaccent{position:absolute;left:0;top:0;bottom:0;width:4px}
+.dash-card{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:20px 22px;margin-bottom:20px}
+.dash-card h3{font-size:14px;font-weight:600;color:var(--steel);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.dash-card .sub{font-size:12px;color:var(--muted);margin-bottom:16px}
+.dash-card h3 .hint{margin-left:auto;font-size:11px;font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted)}
+.hbar-row{display:flex;align-items:center;gap:12px;margin-bottom:11px}
+.hbar-row .hlabel{width:200px;font-size:12.5px;flex:none;line-height:1.3}
+.hbar-row .hlabel small{color:var(--muted);display:block;font-size:11px}
+.hbar-track{flex:1;height:22px;background:var(--line-soft);border-radius:6px;overflow:hidden;position:relative}
+.hbar-fill{height:100%;border-radius:6px;transition:width .5s;display:flex;align-items:center;justify-content:flex-end;padding-right:8px}
+.hbar-fill span{font-size:11.5px;font-weight:600;color:#fff;font-family:'IBM Plex Mono',monospace}
+.hbar-val{width:74px;flex:none;text-align:right;font-size:12.5px;font-weight:600;font-family:'IBM Plex Mono',monospace}
+.hbar-val small{color:var(--muted);font-weight:400;font-size:11px}
+.insight{display:flex;gap:10px;padding:12px 14px;border-radius:9px;background:var(--steel-soft);margin-top:14px;font-size:12.5px;color:var(--ink-soft);line-height:1.55}
+.insight b{color:var(--steel)}
+.insight .ii{color:var(--steel);flex:none;font-size:14px}
+.chart-wrap{overflow-x:auto;padding-bottom:4px}
+.legend-inline{display:flex;gap:16px;flex-wrap:wrap;font-size:11.5px;color:var(--muted);margin-top:12px}
+.legend-inline span{display:inline-flex;align-items:center;gap:5px}
+.legend-inline i{width:11px;height:11px;border-radius:3px;display:inline-block}
+.batch-table{width:100%;border-collapse:collapse;font-size:12.5px}
+.batch-table th,.batch-table td{padding:7px 9px;text-align:center;border-bottom:1px solid var(--line-soft)}
+.batch-table th{font-size:10.5px;text-transform:uppercase;letter-spacing:.03em;color:var(--muted);background:var(--canvas);font-weight:600;position:sticky;top:0}
+.batch-table td.bt-first{text-align:left;font-weight:600}
+.batch-table td .minicell{display:inline-block;min-width:34px;padding:2px 6px;border-radius:5px;font-family:'IBM Plex Mono','Courier New',monospace;font-weight:600;font-size:11.5px}
+.bt-row:hover{background:var(--steel-soft)}
+/* filter bar */
+.dash-filters{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 16px;background:var(--paper);border:1px solid var(--line);border-radius:10px;margin-bottom:8px}
+.df-label{font-size:12.5px;font-weight:600;color:var(--muted)}
+.dash-filters select{padding:6px 10px;border:1px solid var(--line);border-radius:7px;font-family:inherit;font-size:12.5px;background:var(--canvas);color:var(--ink);cursor:pointer}
+.dash-filters select:focus{outline:2px solid var(--steel-soft);border-color:var(--steel)}
+.df-clear{padding:5px 11px;border-radius:7px;border:1px solid var(--bad);color:var(--bad);font-size:12px;background:var(--bad-bg);cursor:pointer;font-family:inherit}
+.df-count{font-size:12.5px;font-weight:600;color:var(--steel)}
+/* batch comparison */
+.cmp-bar{display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap;margin-bottom:12px}
+.cmp-bar select{padding:6px 10px;border:1px solid var(--line);border-radius:7px;font-family:inherit;font-size:12.5px;background:var(--canvas);color:var(--ink)}
+.cmp-card{background:var(--good-bg);border:1px solid var(--good);border-radius:10px;padding:12px 16px;min-width:260px;flex:1}
+.cmp-title{font-size:12.5px;font-weight:700;color:var(--good);margin-bottom:10px}
+.cmp-grid{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+.cmp-item{background:#fff;border-radius:7px;padding:6px 10px;min-width:80px}
+.ci-l{font-size:10px;text-transform:uppercase;color:var(--muted);letter-spacing:.05em}
+.ci-v{font-size:14px;font-weight:700;color:var(--ink);margin-top:1px}
+.cmp-roster-btn{font-size:12px;padding:5px 12px;border-radius:7px;background:var(--good);color:#fff;border:none;cursor:pointer;font-family:inherit;font-weight:600}
+html[data-theme="dark"] .cmp-item{background:var(--paper)}html[data-theme="dark"] .cmp-item{background:var(--paper)}
+.cmp-roster-btn{font-size:12px;padding:5px 12px;border-radius:7px;background:var(--good);color:#fff;border:none;cursor:pointer;font-family:inherit;font-weight:600}
+html[data-theme="dark"] .cmp-item{background:var(--paper)}html[data-theme="dark"] .cmp-item{background:var(--paper)}
+.batch-table td .minicell{display:inline-block;min-width:34px;padding:2px 6px;border-radius:5px;font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:11.5px}
+.modal-overlay{position:fixed;inset:0;background:rgba(16,20,24,.5);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;z-index:100;padding:20px}
+.modal-overlay.open{display:flex}
+.modal{background:var(--paper);border-radius:14px;width:100%;max-width:660px;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:18px 24px;border-bottom:1px solid var(--line)}
+.modal-head h3{font-size:17px;color:var(--steel)}
+.modal-x{font-size:26px;color:var(--muted);line-height:1;width:32px;height:32px;border-radius:8px}
+.modal-x:hover{background:var(--canvas);color:var(--ink)}
+.modal-body{padding:18px 24px;overflow-y:auto}
+.mgroup{margin-bottom:18px}
+.mgroup-t{font-size:12px;font-weight:600;color:var(--brand-deep);text-transform:uppercase;letter-spacing:.04em;margin-bottom:10px;padding-bottom:5px;border-bottom:1px dashed var(--line)}
+.mrow3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px}
+.mfield label{display:block;font-size:11.5px;color:var(--ink-soft);margin-bottom:4px;font-weight:500}
+.mfield input,.mfield select{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:7px;font-family:inherit;font-size:13px;background:var(--canvas)}
+.mfield input:focus,.mfield select:focus{outline:2px solid var(--steel-soft);border-color:var(--steel);background:#fff}
+.mfield input[readonly]{background:var(--steel-soft);color:var(--steel);font-weight:600}
+.mscore-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.mscore-item{border:1px solid var(--line-soft);border-radius:8px;padding:9px 11px}
+.mscore-item .ml{font-size:12px;font-weight:600;margin-bottom:6px}
+.mscore-item .ml small{color:var(--muted);font-weight:400}
+.mscore-item .mpair{display:flex;gap:8px}
+.mscore-item .mpair input{flex:1;padding:6px 8px;border:1px solid var(--line);border-radius:6px;font-family:'IBM Plex Mono',monospace;font-size:12.5px;text-align:center;background:var(--canvas)}
+.mscore-item .mpair label{font-size:10px;color:var(--muted);display:block;text-align:center;margin-bottom:2px}
+.modal-err{color:var(--bad);font-size:12.5px;min-height:16px;font-weight:500}
+.modal-foot{display:flex;justify-content:flex-end;gap:10px;padding:16px 24px;border-top:1px solid var(--line)}
+.rrow .rbadge-new{font-size:9px;background:var(--brand);color:#fff;padding:1px 5px;border-radius:4px;font-weight:600}
+@media (max-width:860px){.mrow3,.mscore-grid{grid-template-columns:1fr}}
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);max-width:420px;padding:13px 20px;border-radius:10px;font-size:13px;font-weight:500;box-shadow:0 8px 30px rgba(0,0,0,.25);opacity:0;pointer-events:none;transition:.25s;z-index:200;line-height:1.5}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+#toast.info{background:var(--steel);color:#fff}
+#toast.err{background:var(--bad);color:#fff}
+.filters{padding:10px 16px 4px;display:flex;gap:6px;flex-wrap:wrap}
+.filters button{font-size:11.5px;padding:4px 10px;border-radius:20px;border:1px solid var(--line);color:var(--ink-soft);background:var(--paper)}
+.filters button.on{background:var(--steel);color:#fff;border-color:var(--steel)}
+.rostercount{padding:6px 18px 8px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.roster{flex:1;overflow-y:auto;padding:0 10px 16px}
+.rrow{width:100%;text-align:left;display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:9px;color:var(--ink);transition:background .12s}
+.rrow:hover{background:var(--canvas)}
+.rrow.active{background:var(--steel);color:#fff}
+.rrow.active .rmeta,.rrow.active .rid{color:rgba(255,255,255,.8)}
+.avatar{width:32px;height:32px;border-radius:50%;flex:none;display:grid;place-items:center;font-weight:600;font-size:12px;color:#fff}
+.rname{flex:1;min-width:0}
+.rname .rtop{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rname .rmeta{font-size:11px;color:var(--muted);display:flex;gap:6px}
+.rid{font-size:10.5px;color:var(--muted)}
+.dot{width:7px;height:7px;border-radius:50%;flex:none}
+
+/* ===== Main ===== */
+.main{overflow-y:auto;height:100vh}
+.topbar{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.9);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);padding:11px 26px;display:flex;align-items:center;gap:14px}
+.topbar .tt{font-size:13px;color:var(--muted)}
+.topbar .tt b{color:var(--ink);font-weight:600}
+.spacer{flex:1}
+.exportgrp{display:flex;gap:8px}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:8px 14px;border-radius:8px;font-size:12.5px;font-weight:500;border:1px solid var(--line);color:var(--ink);background:var(--paper);transition:.12s}
+.savebtn{background:var(--good);color:#fff;border-color:var(--good);font-weight:600}
+.savebtn:hover{background:#247a4c;border-color:#247a4c;color:#fff}
+.savebtn svg{width:15px;height:15px}
+.btn:hover{border-color:var(--steel);color:var(--steel)}
+.btn.primary{background:var(--steel);color:#fff;border-color:var(--steel)}
+.btn.primary:hover{background:#152a45;color:#fff}
+.themebtn{width:36px;height:36px;border-radius:9px;border:1px solid var(--line);display:grid;place-items:center;color:var(--ink-soft);background:var(--paper);transition:.12s;flex:none}
+.themebtn:hover{border-color:var(--steel);color:var(--steel)}
+.themebtn svg{width:18px;height:18px}
+.btn svg{width:15px;height:15px}
+.btn[disabled]{opacity:.5;cursor:wait}
+
+.content{padding:26px 30px 80px;max-width:1080px;margin:0 auto}
+
+/* ===== Report sheet ===== */
+.sheet{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;box-shadow:0 1px 3px rgba(16,20,24,.05)}
+.rpt-head{padding:26px 30px 22px;border-bottom:3px solid var(--brand);position:relative;background:linear-gradient(180deg,#fff, #fff)}
+.rpt-head .eyebrow{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--brand-deep);font-weight:600}
+.rpt-head .who{display:flex;align-items:flex-end;gap:16px;margin-top:10px;flex-wrap:wrap}
+.rpt-head .bigname{font-size:26px;font-weight:700;letter-spacing:-.02em}
+.rpt-head .bignick{font-size:15px;color:var(--muted);font-weight:400}
+.statuspill{padding:3px 12px;border-radius:20px;font-size:12px;font-weight:600;align-self:center}
+.st-active{background:var(--good-bg);color:var(--good)}
+.st-resigned{background:var(--bad-bg);color:var(--bad)}
+.metagrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--line-soft);border-top:1px solid var(--line-soft);border-bottom:1px solid var(--line-soft)}
+.metacell{background:#fff;padding:11px 14px}
+.metacell .k{font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.metacell .v{font-size:13.5px;font-weight:500;margin-top:2px}
+.metacell-edit{background:#fff}
+.edit-hint{font-size:9.5px;color:var(--brand-deep);font-weight:600;letter-spacing:0;text-transform:none;margin-left:4px;opacity:.7}
+.meta-input{width:100%;margin-top:4px;padding:4px 7px;border:1px solid var(--line);border-radius:6px;font-family:inherit;font-size:13px;font-weight:500;background:var(--canvas);color:var(--ink)}
+.meta-input:focus{outline:2px solid var(--steel-soft);border-color:var(--steel);background:#fff}
+html[data-theme="dark"] .metacell-edit{background:var(--paper)}
+html[data-theme="dark"] .meta-input{background:var(--canvas)}
+
+.section{padding:22px 30px}
+.section + .section{border-top:1px solid var(--line-soft)}
+.sec-title{display:flex;align-items:center;gap:9px;font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--steel);margin-bottom:16px}
+.sec-title .num{width:22px;height:22px;border-radius:6px;background:var(--steel-soft);color:var(--steel);display:grid;place-items:center;font-size:12px;font-weight:700}
+
+/* score summary cards */
+.scorecards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:6px}
+.scard{border:1px solid var(--line);border-radius:9px;padding:13px 14px;position:relative;overflow:hidden}
+.scard .lbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.scard .big{font-size:24px;font-weight:700;margin-top:3px;line-height:1}
+.scard .sub{font-size:11px;color:var(--muted);margin-top:3px}
+.scard .bar{position:absolute;left:0;bottom:0;height:3px;background:var(--brand)}
+
+/* product knowledge table */
+table.prod{width:100%;border-collapse:collapse;font-size:13px}
+table.prod th,table.prod td{padding:8px 10px;text-align:center;border-bottom:1px solid var(--line-soft)}
+table.prod th{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);font-weight:600;background:var(--canvas)}
+table.prod td.name{text-align:left;font-weight:500}
+table.prod td.name small{color:var(--muted);font-weight:400;font-size:11px}
+.scorechip{display:inline-block;min-width:30px;padding:2px 8px;border-radius:6px;font-weight:600;font-family:'IBM Plex Mono',monospace;font-size:12.5px}
+.sc-pass{background:var(--good-bg);color:var(--good)}
+.sc-retest{background:var(--warn-bg);color:var(--warn)}
+.sc-fail{background:var(--bad-bg);color:var(--bad)}
+.sc-none{color:var(--muted)}
+
+.rp-wrap{display:grid;grid-template-columns:180px 1fr;gap:22px;align-items:center}
+.rp-gauge{position:relative;display:grid;place-items:center}
+.rp-gauge svg{transform:rotate(-90deg)}
+.rp-gauge .center{position:absolute;text-align:center}
+.rp-gauge .pct{font-size:30px;font-weight:700;line-height:1}
+.rp-gauge .cap{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.rp-bars{display:flex;flex-direction:column;gap:11px}
+.rp-item .rp-top{display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:4px}
+.rp-item .rp-top b{font-weight:600}
+.rp-track{height:8px;background:var(--line-soft);border-radius:5px;overflow:hidden}
+.rp-fill{height:100%;border-radius:5px}
+.coach-wrap{margin-top:22px;padding-top:20px;border-top:1px dashed var(--line)}
+.coach-summary{display:flex;gap:12px;padding:14px 16px;background:var(--steel-soft);border-radius:10px;margin-bottom:16px}
+.coach-summary .coach-star{color:var(--steel);font-size:15px;line-height:1.5;flex:none}
+.coach-summary b{font-size:13px;color:var(--steel)}
+.coach-summary p{font-size:12.5px;color:var(--ink-soft);margin-top:3px}
+.coach-summary .coach-prio{margin-top:6px;color:var(--steel);font-weight:500}
+.coach-grid{display:flex;flex-direction:column;gap:10px}
+.coach-card{border:1px solid var(--line-soft);border-left-width:3px;border-radius:9px;padding:12px 15px}
+.coach-card.coach-low{border-left-color:var(--bad);background:var(--bad-bg)}
+.coach-card.coach-mid{border-left-color:var(--brand);background:var(--warn-bg)}
+.coach-card.coach-high{border-left-color:var(--good);background:var(--good-bg)}
+.coach-h{display:flex;align-items:center;gap:9px;margin-bottom:8px;flex-wrap:wrap}
+.coach-ic{width:22px;height:22px;border-radius:6px;background:#fff;display:grid;place-items:center;font-size:12px;font-weight:700;flex:none}
+.coach-low .coach-ic{color:var(--bad)}.coach-mid .coach-ic{color:var(--warn)}.coach-high .coach-ic{color:var(--good)}
+.coach-title{font-size:13px;font-weight:600}
+.coach-badge{margin-left:auto;font-size:11px;font-weight:600;font-family:'IBM Plex Mono',monospace;padding:2px 9px;border-radius:20px;background:#fff;color:var(--ink-soft)}
+.coach-recs{margin:0;padding-left:18px}
+.coach-recs li{font-size:12.5px;color:var(--ink-soft);margin-bottom:3px;line-height:1.5}
+.coach-high .coach-recs{padding-left:0;list-style:none}
+.coach-high .coach-recs li{padding-left:0}
+
+/* analysis */
+.analysis{display:flex;flex-direction:column;gap:11px}
+.finding{display:flex;gap:12px;padding:13px 15px;border-radius:9px;border:1px solid var(--line-soft)}
+.finding .ic{width:26px;height:26px;border-radius:7px;flex:none;display:grid;place-items:center;font-weight:700;font-size:14px}
+.f-strength{background:var(--good-bg)}.f-strength .ic{background:#fff;color:var(--good)}
+.f-watch{background:var(--warn-bg)}.f-watch .ic{background:#fff;color:var(--warn)}
+.f-focus{background:var(--bad-bg)}.f-focus .ic{background:#fff;color:var(--bad)}
+.finding .ftxt h4{font-size:13px;margin-bottom:2px}
+.finding .ftxt p{font-size:12.5px;color:var(--ink-soft)}
+
+/* feedback inputs */
+.fb-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.fb-field label{display:block;font-size:12px;font-weight:600;color:var(--steel);margin-bottom:6px}
+.fb-field textarea{width:100%;min-height:110px;border:1px solid var(--line);border-radius:9px;padding:11px 13px;font-family:inherit;font-size:13px;line-height:1.6;resize:vertical;background:var(--canvas)}
+.fb-field textarea:focus{outline:2px solid var(--steel-soft);border-color:var(--steel);background:#fff}
+.resign-section .sec-title{color:var(--bad)}
+.resign-section .sec-title .num{background:var(--bad-bg);color:var(--bad)}
+.resign-grid{display:grid;grid-template-columns:220px 1fr;gap:20px;align-items:start}
+.resign-meta{display:flex;flex-direction:column;gap:10px}
+.rm-item{background:var(--bad-bg);border-radius:9px;padding:11px 14px}
+.rm-k{font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--bad)}
+.rm-v{font-size:14px;font-weight:600;margin-top:2px;color:var(--ink)}
+.resign-section textarea{min-height:80px}
+@media (max-width:860px){.resign-grid{grid-template-columns:1fr}}
+.behav-chips{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:10px}
+.behav-chips button{font-size:11.5px;padding:4px 11px;border-radius:20px;border:1px solid var(--line);color:var(--ink-soft);background:var(--paper)}
+.behav-chips button.on{background:var(--good);color:#fff;border-color:var(--good)}
+.behav-chips button.neg.on{background:var(--warn);border-color:var(--warn)}
+.saved-note{font-size:11.5px;color:var(--good);margin-top:8px;height:14px;transition:opacity .3s}
+
+.rating-row{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.rating-row .rl{font-size:12.5px;font-weight:500;width:180px}
+.stars{display:flex;gap:3px}
+.stars button{font-size:19px;color:var(--line);line-height:1;transition:.1s}
+.stars button.on{color:var(--brand)}
+
+.empty{display:grid;place-items:center;height:70vh;text-align:center;color:var(--muted)}
+.empty svg{width:52px;height:52px;opacity:.4;margin-bottom:12px}
+
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:11.5px;color:var(--muted);margin-top:10px}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.legend i{width:11px;height:11px;border-radius:3px;display:inline-block}
+
+@media print{
+  html[data-theme="dark"]{
+    --ink:#101418; --ink-soft:#3a434d; --muted:#7a848e;
+    --paper:#ffffff; --canvas:#eef0f2; --line:#dde1e5; --line-soft:#eaedf0;
+    --brand:#f5a623; --brand-deep:#c67f0a; --steel:#1f3a5f; --steel-soft:#e8eef5;
+    --good:#2f8f5b; --good-bg:#e7f3ec; --warn:#c0672a; --warn-bg:#fbeee2; --bad:#c23b3b; --bad-bg:#fbe9e9;
+  }
+  .sidebar,.topbar,.modal-overlay,#toast{display:none !important}
+  .app{display:block}
+  .main{height:auto;overflow:visible}
+  .content{padding:0;max-width:100%}
+  .sheet{border:none;box-shadow:none;border-radius:0}
+  .fb-field textarea{border:1px solid #ccc;background:#fff}
+  .coach-card,.coach-summary,.scard,.finding{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .section{page-break-inside:avoid}
+}
+@media (max-width:860px){
+  .app{grid-template-columns:1fr}
+  .sidebar{position:fixed;left:-300px;transition:.2s;z-index:50;box-shadow:0 0 40px rgba(0,0,0,.2)}
+  .sidebar.open{left:0}
+  .scorecards{grid-template-columns:repeat(2,1fr)}
+  .rp-wrap,.fb-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="brandbar">
+      <div class="mark">
+        <div class="chip">NTL</div>
+        <div><h1>Newcomer Training</h1><p>Loan Telesales · รายงานผลรายบุคคล</p></div>
+      </div>
+    </div>
+    <div class="navbtns">
+      <button class="navbtn active" id="navDash" onclick="showDashboard()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>ภาพรวม Dashboard</button>
+    </div>
+    <div class="searchbox">
+      <input id="search" placeholder="ค้นหาชื่อ / รหัส / ชื่อเล่น...">
+      <button class="addbtn" onclick="openAddModal()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg>เพิ่มพนักงาน</button>
+      <button class="uploadbtn" onclick="document.getElementById('xlsxUpload').click()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>อัปโหลดไฟล์ Excel</button>
+      <input type="file" id="xlsxUpload" accept=".xlsx,.xls" style="display:none" onchange="handleXlsxUpload(this)">
+    </div>
+    <div class="filters" id="filters">
+      <button data-f="all" class="on">ทั้งหมด</button>
+      <button data-f="Active">Active</button>
+      <button data-f="Resigned">Resigned</button>
+    </div>
+    <div class="rostercount" id="rostercount"></div>
+    <div class="roster" id="roster"></div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div class="tt">รายงาน · <b id="crumbName">เลือกพนักงาน</b></div>
+      <div class="spacer"></div>
+      <button class="btn savebtn" onclick="exportAllData()" title="บันทึกข้อมูลทั้งหมด (คะแนน + Feedback + พฤติกรรม) เป็น Excel">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        บันทึกข้อมูลทั้งหมด
+      </button>
+      <button class="themebtn" id="themeBtn" onclick="toggleTheme()" title="สลับโหมดสว่าง/มืด">
+        <svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/></svg>
+      </button>
+      <div class="exportgrp" id="exportgrp" style="display:none">
+        <button class="btn" onclick="exportExcel()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 8l8 8M16 8l-8 8"/></svg>Excel</button>
+        <button class="btn" onclick="exportWord()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>Word</button>
+        <button class="btn primary" onclick="exportPDF()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0l-4-4m4 4l4-4"/><path d="M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>PDF</button>
+      </div>
+    </div>
+    <div class="content" id="content">
+      <div class="empty">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+        <div>เลือกพนักงานจากรายชื่อด้านซ้าย<br>เพื่อดูรายงานผลการอบรมรายบุคคล</div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="modal-overlay" id="addModal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>เพิ่มพนักงานใหม่</h3>
+      <button class="modal-x" onclick="closeAddModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="mgroup"><div class="mgroup-t">ข้อมูลพนักงาน</div>
+        <div class="mrow3">
+          <div class="mfield"><label>คำนำหน้า</label><select id="f_prefix"><option>นาย</option><option>นาง</option><option>นางสาว</option></select></div>
+          <div class="mfield"><label>ชื่อจริง (ไทย) *</label><input id="f_firstTh" placeholder="เช่น สมชาย"></div>
+          <div class="mfield"><label>นามสกุล (ไทย)</label><input id="f_lastTh" placeholder="เช่น ใจดี"></div>
+        </div>
+        <div class="mrow3">
+          <div class="mfield"><label>First Name</label><input id="f_firstEn" placeholder="Somchai"></div>
+          <div class="mfield"><label>Surname</label><input id="f_lastEn" placeholder="Jaidee"></div>
+          <div class="mfield"><label>ชื่อเล่น</label><input id="f_nick" placeholder="ชาย"></div>
+        </div>
+        <div class="mrow3">
+          <div class="mfield"><label>รหัสพนักงาน</label><input id="f_empId" placeholder="เว้นว่าง = สร้างอัตโนมัติ"></div>
+          <div class="mfield"><label>Batch</label><input id="f_batch" type="number" min="1" placeholder="17"></div>
+          <div class="mfield"><label>สถานะ</label><select id="f_status"><option value="Active">Active</option><option value="Resigned">Resigned</option></select></div>
+        </div>
+      </div>
+      <div class="mgroup"><div class="mgroup-t">วันที่ & ผู้ดูแล</div>
+        <div class="mrow3">
+          <div class="mfield"><label>วันที่อบรม</label><input id="f_trainDate" placeholder="14-20/07/2026"></div>
+          <div class="mfield"><label>Group Leader</label><select id="f_gl" onchange="syncTM()"></select></div>
+          <div class="mfield"><label>Team Manager</label><input id="f_tm" readonly placeholder="อัตโนมัติ"></div>
+        </div>
+      </div>
+      <div class="mgroup"><div class="mgroup-t">คะแนนความรู้ผลิตภัณฑ์ (0–10, เว้นว่าง = ไม่สอบ)</div>
+        <div class="mscore-grid" id="prodInputs"></div>
+      </div>
+      <div class="mgroup"><div class="mgroup-t">QA-Test</div>
+        <div class="mrow3">
+          <div class="mfield"><label>QA-Test</label><input id="f_qa" placeholder="9/10"></div>
+          <div class="mfield"></div><div class="mfield"></div>
+        </div>
+      </div>
+      <div class="mgroup"><div class="mgroup-t">คะแนน Role Play รายทักษะ (0–100%, เว้นว่าง = ไม่ประเมิน)</div>
+        <div class="mscore-grid" id="rpInputs"></div>
+      </div>
+      <div class="modal-err" id="modalErr"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="closeAddModal()">ยกเลิก</button>
+      <button class="btn primary" onclick="saveNewEmp()">บันทึกและเพิ่ม</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const DATA = [{"batch":1,"seq":"1","status":"Resigned","startDate":"05/01/2026","trainDate":"6-8/01/2026","empId":"CF306107","prefix":"นางสาว","firstTh":"สุรีย์พร","lastTh":"วิริยะพากเพียร","firstEn":"Sureeporn","lastEn":"Wiriyahparkphain","nick":"นิด","nickEn":"Nid","gl":"Supattra Kaewkongnork","tm":"Piboon Kruensaksri","resignDate":"24/04/2026","M1":8,"M2":"-","C1":6,"C2":10,"T1":8,"T2":"-","BT1":9,"BT2":"-","L1":8,"L2":"-","QA":"9/10","RP":0.46,"workDays":"3 Months","reason":"ไม่ชำนาญในลักษณะงาน","rpDate":"08/01/2026","rp":{"opening":1,"pitching":0.43,"objection":0.33,"documents":0.8,"closing":0.5,"inquiry":0.14}},{"batch":1,"seq":"2","status":"Resigned","startDate":null,"trainDate":"6-8/01/2026","empId":"CF306108","prefix":"นาย","firstTh":"นพศิน","lastTh":"ตรงตั้งเตชะสี","firstEn":"Nophasin","lastEn":"Tongtangtachasi","nick":"โปร","nickEn":"Pro","gl":"Supattra Kaewkongnork","tm":"Piboon Kruensaksri","resignDate":"01/07/2026","M1":9,"M2":"-","C1":6,"C2":10,"T1":7,"T2":10,"BT1":9,"BT2":"-","L1":9,"L2":"-","QA":"8/10","RP":0.76,"workDays":"5 Months","reason":"ได้งานใหม่","rpDate":"08/01/2026","rp":{"opening":1,"pitching":0.71,"objection":0.33,"documents":0.8,"closing":0.75,"inquiry":1}},{"batch":1,"seq":"3","status":"Resigned","startDate":null,"trainDate":"6-8/01/2026","empId":"CF306109","prefix":"นางสาว","firstTh":"รินวภัช","lastTh":"ภู่สาร","firstEn":"Rinwapat","lastEn":"Pusan","nick":"พลอย","nickEn":"Ploy","gl":"Maliwan Maneeloon","tm":"Piboon Kruensaksri","resignDate":"18/07/2026","M1":9,"M2":"-","C1":6,"C2":10,"T1":5,"T2":10,"BT1":10,"BT2":"-","L1":8,"L2":"-","QA":"9/10","RP":0.56,"workDays":"6 Months","reason":"มีปัญหาเรื่องสุขภาพ","rpDate":"08/01/2026","rp":{"opening":1,"pitching":0.43,"objection":0.33,"documents":0.4,"closing":0.75,"inquiry":0.43}},{"batch":1,"seq":"4","status":"Resigned","startDate":null,"trainDate":"6-8/01/2026","empId":"CF306110","prefix":"นางสาว","firstTh":"ณิชาพัฒน์","lastTh":"ฉายา","firstEn":"Nichapat","lastEn":"Chaya","nick":"ชานิวส์","nickEn":"Chanew","gl":"Somkiart Janjaeng","tm":"Nicharee Wattanakitjakul","resignDate":"24/02/2026","M1":7,"M2":8,"C1":5,"C2":10,"T1":3,"T2":9,"BT1":8,"BT2":"-","L1":9,"L2":"-","QA":"10/10","RP":0.7,"workDays":"1 Month","reason":"ได้งานใหม่ใกล้บ้าน","rpDate":"08/01/2026","rp":{"opening":1,"pitching":0.43,"objection":0.33,"documents":0.8,"closing":0.75,"inquiry":1}},{"batch":1,"seq":"5","status":"Resigned","startDate":null,"trainDate":"6-8/01/2026","empId":"CF306113","prefix":"นางสาว","firstTh":"กษิรา","lastTh":"ยอดประเสริฐ","firstEn":"Kasira","lastEn":"Yodprasert","nick":"ปลา","nickEn":"Pla","gl":"Panupong Nuankliang","tm":"Saksiri Kessakorn","resignDate":"14/01/2026","M1":7,"M2":9,"C1":8,"C2":"-","T1":8,"T2":"-","BT1":9,"BT2":"-","L1":8,"L2":"-","QA":"10/10","RP":0.63,"workDays":"10 Days","reason":"เรื่องสุขภาพแต่เหตุผลจริงอาจจะเพราะแฟนสัมภาษณ์ไม่ผ่าน","rpDate":"08/01/2026","rp":{"opening":1,"pitching":0.71,"objection":0.33,"documents":0,"closing":0.75,"inquiry":1}},{"batch":2,"seq":"6","status":"Active","startDate":"26/01/2026","trainDate":"26-31/01/2026  02/02/2026","empId":"CF306111","prefix":"นางสาว","firstTh":"สุมาตรา","lastTh":"ศรีทา","firstEn":"Sumartha","lastEn":"Sritha","nick":"มิ้ม","nickEn":"Mim","gl":"Ratchanee  Tenawat","tm":"Saksiri Kessakorn","resignDate":"N/A","M1":8,"M2":"-","C1":8,"C2":"-","T1":8,"T2":"-","BT1":10,"BT2":"-","L1":10,"L2":"-","QA":"10/10","RP":0.77,"workDays":null,"reason":null,"rpDate":"02/02/2026","rp":{"opening":1,"pitching":0.71,"objection":1,"documents":0.17,"closing":1,"inquiry":0.86}},{"batch":2,"seq":"7","status":"Resigned","startDate":null,"trainDate":"26-31/01/2026  02/02/2026","empId":"CF306127","prefix":"นางสาว","firstTh":"กฤษยา","lastTh":"นวลไชยดี","firstEn":"Krissaya","lastEn":"Nuanchaidee","nick":"เกรซ","nickEn":"Grace","gl":"Panupong Nuankliang","tm":"Saksiri Kessakorn","resignDate":"26/02/2026","M1":8,"M2":"-","C1":8,"C2":"-","T1":8,"T2":"-","BT1":8,"BT2":"-","L1":8,"L2":"-","QA":"10/10","RP":0.73,"workDays":"1 Month","reason":"ส่งคืน Datapro","rpDate":"02/02/2026","rp":{"opening":1,"pitching":0.57,"objection":0.67,"documents":1,"closing":0.75,"inquiry":0.71}},{"batch":2,"seq":"8","status":"Active","startDate":null,"trainDate":"26-31/01/2026  02/02/2026","empId":"CF306136","prefix":"นางสาว","firstTh":"อัญธิกา","lastTh":"สังข์กระจ่าง","firstEn":"Anthika","lastEn":"Sangkrachang","nick":"ฟิล์ม","nickEn":"Film","gl":"Sirintra Buaphanngam","tm":"Saksiri Kessakorn","resignDate":"N/A","M1":8,"M2":"-","C1":8,"C2":"-","T1":8,"T2":"-","BT1":9,"BT2":"-","L1":9,"L2":"-","QA":"10/10","RP":0.73,"workDays":null,"reason":null,"rpDate":"02/02/2026","rp":{"opening":1,"pitching":0.71,"objection":0.67,"documents":0.6,"closing":1,"inquiry":0.57}},{"batch":3,"seq":"9","status":"Active","startDate":"02/02/2026","trainDate":"2-6/02/2026","empId":"CF306150","prefix":"นาย","firstTh":"กัมพล","lastTh":"ไกรสิริโภค","firstEn":"Kumpol","lastEn":"Krisiripok","nick":"หนุ่ม","nickEn":"Noom","gl":"Sirintra Buaphanngam","tm":"Saksiri Kessakorn","resignDate":"N/A","M1":9,"M2":"-","C1":8,"C2":"-","T1":8,"T2":"-","BT1":8,"BT2":"-","L1":10,"L2":"-","QA":"10/10","RP":0.67,"workDays":null,"reason":null,"rpDate":"06/02/2026","rp":{"opening":1,"pitching":0.57,"objection":0.66,"documents":0.6,"closing":1,"inquiry":0.57}},{"batch":3,"seq":"10","status":"Active","startDate":null,"trainDate":"2-6/02/2026","empId":"CF303592","prefix":"นางสาว","firstTh":"ณัฐภาพย์","lastTh":"นบนอบ","firstEn":"Natthapap","lastEn":"Nopnob","nick":"โอ๋","nickEn":"Ao","gl":"Maliwan Maneeloon","tm":"Piboon Kruensaksri","resignDate":"N/A","M1":9,"M2":"-","C1":10,"C2":"-","T1":10,"T2":"-","BT1":9,"BT2":"-","L1":9,"L2":"-","QA":"9/10","RP":0.7,"workDays":null,"reason":null,"rpDate":"06/02/2026","rp":{"opening":1,"pitching":0.71,"objection":0.67,"documents":0.8,"closing":1,"inquiry":0.43}},{"batch":4,"seq":"11","status":"Active","startDate":"09/02/2026","trainDate":"9-16/02/2026","empId":"CF306153","prefix":"นาย","firstTh":"ประสงค์","lastTh":"นามศิริ","firstEn":"Prasong","lastEn":"Namsiri","nick":"เก๋","nickEn":"Kae","gl":"Ratchanee  Tenawat","tm":"Saksiri Kessakorn","resignDate":"N/A","M1":9,"M2":"-","C1":7,"C2":10,"T1":7,"T2":10,"BT1":10,"BT2":"-","L1":8,"L2":"-","QA":"8/10","RP":0.73,"workDays":null,"reason":null,"rpDate":"16/02/2026","rp":{"opening":1,"pitching":0.57,"objection":0.33,"documents":0.83,"closing":1,"inquiry":0.57}},{"batch":4,"seq":"12","status":"Active","startDate":null,"trainDate":"9-16/02/2026","empId":"CF306154","prefix":"นางสาว","firstTh":"เมธญา","lastTh":"อวิสุ","firstEn":"Metaya","lastEn":"Awisu","nick":"ญ่า","nickEn":"Ya","gl":"Patcharaporn Singlawon","tm":"Saksiri Kessakorn","resignDate":"N/A","M1":10,"M2":"-","C1":8,"C2":"-","T1":7,"T2":10,"BT1":8,"BT2":"-","L1":8,"L2":"-","QA":"9/10","RP":0.4,"workDays":null,"reason":null,"rpDate":"16/02/2026","rp":{"opening":1,"pitching":0.33,"objection":0.43,"documents":0.16,"closing":0.5,"inquiry":0.14}},{"batch":4,"seq":"13","status":"Resigned","startDate":null,"trainDate":"9-16/02/2026","empId":"CF306155","prefix":"นางสาว","firstTh":"วันวิสา","lastTh":"จันทินมาธร","firstEn":"Wanvisa","lastEn":"Jantinmatorn","nick":"เจน","nickEn":"Jane","gl":"Sirintra Buaphanngam","tm":"Saksiri Kessakorn","resignDate":"06/03/2026","M1":8,"M2":"-","C1":7,"C2":10,"T1":9,"T2":"-","BT1":9,"BT2":"-","L1":7,"L2":10,"QA":"8/10","RP":0.47,"workDays":"25 Days","reason":"ได้งานใหม่","rpDate":"16/02/2026","rp":{"opening":1,"pitching":0.43,"objection":0.33,"documents":0.33,"closing":0.25,"inquiry":0.43}},{"batch":5,"seq":"14","status":"Active","startDate":"16/02/2026","trainDate":"19-25/02/2026","empId":"CF306160","prefix":"นางสาว","firstTh":"หทัยรัตน์","lastTh":"ช่วยคงทอง","firstEn":"Hatairat","lastEn":"Chuaykongthong","nick":"ก้อย","nickEn":"Koi","gl":"Sirintra  Buaphanngam","tm":"Saksiri Kessakorn","resignDate":"N/A","M1":10,"M2":"-","C1":8,"C2":"-","T1":7,"T2":10,"BT1":10,"BT2":"-","L1":10,"L2":"-","QA":"10/10","RP":0.74,"workDays":null,"reason":null,"rpDate":"25/02/2026","rp":{"opening":1,"pitching":0.57,"objection":1,"documents":0.67,"closing":0.5,"inquiry":0.71}},{"batch":6,"seq":"15","status":"Resigned","startDate":"02/03/2026","trainDate":"09-13/02/2026","empId":"CF306179","prefix":"นางสาว","firstTh":"สุนันทา","lastTh":"ภูลำ","firstEn":"Sununta","lastEn":"Poolum","nick":"พิก","nickEn":"Pic","gl":"Maliwan Maneeloon","tm":"Piboon Kruensaksri","resignDate":"13/04/2026","M1":10,"M2":"-","C1":7,"C2":10,"T1":6,"T2":10,"BT1":10,"BT2":"-","L1":10,"L2":"-","QA":"10/10","RP":0.75,"workDays":"1 Month","reason":"มีปัญหาเรื่องสุขภาพ","rpDate":"13/02/2026","rp":{"opening":1,"pitching":0.71,"objection":0.33,"documents":0.71,"closing":1,"inquiry":0.71}},{"batch":6,"seq":"16","status":"Resigned","startDate":null,"trainDate":"09-13/02/2026","empId":"CF306180","prefix":"นางสาว","firstTh":"สุภาวดี","lastTh":"เพ็ชรมีค่า","firstEn":"Supawadee","lastEn":"Pechmeeka","nick":"หนิง","nickEn":"Ning","gl":"Hathaichanok Timmaneechay","tm":"Chartree Kaewwachira","resignDate":"24/03/2026","M1":9,"M2":"-","C1":7,"C2":10,"T1":7,"T2":10,"BT1":10,"BT2":"-","L1":10,"L2":"-","QA":"10/10","RP":0.89,"workDays":"22 Days","reason":"เปลี่ยนงานใหม่","rpDate":"13/02/2026","rp":{"opening":1,"pitching":0.86,"objection":0.68,"documents":0.86,"closing":1,"inquiry":0.71}},{"batch":7,"seq":"17","status":"Active","startDate":"23/03/2026","trainDate":"30-31/03/2026,\n 1-3/04/2026","empId":"CF306200","prefix":"นางสาว","firstTh":"เพ็ญสิริ","lastTh":"จีรพันธ์ภักดี","firstEn":"Pensiri","lastEn":"Geerapunpukdee","nick":"แป๋ม","nickEn":"Pam","gl":"Thitarat Chaivachirarote","tm":"Chartree Kaewwachira","resignDate":"N/A","M1":9,"M2":"-","C1":6,"C2":10,"T1":8,"T2":"-","BT1":10,"BT2":"-","L1":10,"L2":"-","QA":"10/10","RP":0.85,"workDays":null,"reason":null,"rpDate":"03/04/2026","rp":{"opening":1,"pitching":0.72,"objection":1,"documents":1,"closing":0.67,"inquiry":0.7}},{"batch":8,"seq":"18","status":"Resigned","startDate":"20/04/2026","trainDate":"21-27/04/2026","empId":"CF306233","prefix":"นาย","firstTh":"อดิเทพ","lastTh":"สอนสุวรรณ","firstEn":"Aditep","lastEn":"Sonsuwan","nick":"เอ้","nickEn":"Aea","gl":"Jadsadapron Boonyasai","tm":"Jurapornphat Pimlee","resignDate":"25/05/2026","M1":9,"M2":"-","C1":7,"C2":10,"T1":6,"T2":10,"BT1":10,"BT2":"-","L1":10,"L2":"-","QA":"10/10","RP":0.78,"workDays":"1 Month","reason":"มีปัญหาครอบครัว","rpDate":"27/04/2026","rp":{"opening":1,"pitching":0.72,"objection":0.75,"documents":0.33,"closing":1,"inquiry":1}},{"batch":8,"seq":"19","status":"Resigned","startDate":null,"trainDate":"21-27/04/2026","empId":"CF306234","prefix":"นางสาว","firstTh":"ปลินลดา","lastTh":"ตั๊นสุวรรณ์","firstEn":"Palinlada","lastEn":"Tansuwan","nick":"น้ำหวาน","nickEn":"Namwhan","gl":"Ratchanee Tenawat","tm":"Saksiri Kessakorn","resignDate":"03/06/2026","M1":7,"M2":10,"C1":6,"C2":9,"T1":8,"T2":"-","BT1":10,"BT2":"-","L1":9,"L2":"-","QA":"9/10","RP":0.73,"workDays":"1 Month","reason":"ออกไปดูแลแม่และทำกิจการที่บ้าน","rpDate":"27/04/2026","rp":{"opening":1,"pitching":0.72,"objection":0.4,"documents":0.67,"closing":1,"inquiry":0.7}},{"batch":9,"seq":"20","status":"Resigned","startDate":"27/04/2026","trainDate":"28-30/04/2026,\n5-6/04/2026","empId":"CF306232","prefix":"นางสาว","firstTh":"ปริญญา","lastTh":"เกสร","firstEn":"Parinya","lastEn":"Kaesorn","nick":"ปุยนุ่น","nickEn":"Puinun","gl":"Supattra Kaewkongnork","tm":"Piboon Kruensaksri","resignDate":"27/05/2026","M1":9,"M2":"-","C1":7,"C2":10,"T1":10,"T2":"-","BT1":9,"BT2":"-","L1":10,"L2":"-","QA":"9/10","RP":0.74,"workDays":"1 Month","reason":"ส่งพนักงานคืนสังกัด Data Pro","rpDate":"06/04/2026","rp":{"opening":1,"pitching":0.4,"objection":0.75,"documents":1,"closing":1,"inquiry":0.4}},{"batch":9,"seq":"21","status":"Resigned","startDate":null,"trainDate":"28-30/04/2026,\n5-6/04/2026","empId":"CF306242","prefix":"นางสาว","firstTh":"ลีลาวดี","lastTh":"มะหะหมัด","firstEn":"Leeravadee","lastEn":"Mahamat","nick":"แป้ง","nickEn":"Pang","gl":"Supannee Arthan","tm":"Piboon Kruensaksri","resignDate":"01/06/2026","M1":8,"M2":"-","C1":8,"C2":"-","T1":6,"T2":10,"BT1":9,"BT2":"-","L1":5,"L2":8,"QA":"10/10","RP":0.64,"workDays":"1 Month","reason":"ขาดงานติดต่อกัน 3 วัน","rpDate":"06/04/2026","rp":{"opening":1,"pitching":0.4,"objection":0.75,"documents":0.67,"closing":0.67,"inquiry":0.4}},{"batch":9,"seq":"22","status":"Active","startDate":null,"trainDate":"28-30/04/2026,\n5-6/04/2026","empId":"CF306243","prefix":"นางสาว","firstTh":"ประวีณา","lastTh":"กันทะศร","firstEn":"Praweena","lastEn":"Kantasorn","nick":"ต่าย","nickEn":"Tai","gl":"Supattra Kaewkongnork","tm":"Piboon Kruensaksri","resignDate":"N/A","M1":8,"M2":"-","C1":6,"C2":10,"T1":8,"T2":"-","BT1":9,"BT2":"-","L1":8,"L2":"-","QA":"9/10","RP":0.72,"workDays":null,"reason":null,"rpDate":"06/04/2026","rp":{"opening":1,"pitching":1,"objection":0.4,"documents":0.67,"closing":0.67,"inquiry":0.4}},{"batch":9,"seq":"23","status":"Active","startDate":null,"trainDate":"28-30/04/2026,\n5-6/04/2026","empId":"CF306244","prefix":"นางสาว","firstTh":"พนิดา","lastTh":"ยามดี","firstEn":"Panida","lastEn":"Yamdee","nick":"ส้ม","nickEn":"Som","gl":"Kanya Sarachatthanasub","tm":"Nicharee Wattanakitjakul","resignDate":"N/A","M1":9,"M2":"-","C1":6,"C2":10,"T1":7,"T2":10,"BT1":9,"BT2":"-","L1":9,"L2":"-","QA":"8/10","RP":0.85,"workDays":null,"reason":null,"rpDate":"06/04/2026","rp":{"opening":1,"pitching":0.72,"objection":1,"documents":0.67,"closing":1,"inquiry":0.7}},{"batch":9,"seq":"24","status":"Active","startDate":null,"trainDate":"28-30/04/2026,\n5-6/04/2026","empId":"CF306245","prefix":"นางสาว","firstTh":"กัลยกฤต","lastTh":"เจือจัน","firstEn":"Kanyakrit","lastEn":"Juejan","nick":"จิ๊บ","nickEn":"Jib","gl":"Patcharaporn Singlawon","tm":"Saksiri Kessakorn","resignDate":"N/A","M1":9,"M2":"-","C1":6,"C2":10,"T1":5,"T2":10,"BT1":10,"BT2":"-","L1":8,"L2":"-","QA":"9/10","RP":0.6,"workDays":null,"reason":null,"rpDate":"06/04/2026","rp":{"opening":1,"pitching":0.4,"objection":0.4,"documents":0.67,"closing":0.67,"inquiry":0.7}},{"batch":9,"seq":"25","status":"Active","startDate":null,"trainDate":"28-30/04/2026,\n5-6/04/2026","empId":"CF306246","prefix":"นางสาว","firstTh":"กาญจน์กรรณ","lastTh":"บางบุญสิทธิ์","firstEn":"Kanchakan","lastEn":"Bangboonsit","nick":"หน่อย","nickEn":"Noi","gl":"Thitarat Chaivachirarote","tm":"Chartree Kaewwachira","resignDate":"N/A","M1":7,"M2":8,"C1":5,"C2":10,"T1":3,"T2":9,"BT1":8,"BT2":"-","L1":9,"L2":"-","QA":"8/10","RP":0.65,"workDays":null,"reason":null,"rpDate":"06/04/2026","rp":{"opening":1,"pitching":0.4,"objection":0.4,"documents":0.67,"closing":1,"inquiry":0.7}},{"batch":9,"seq":"26","status":"Active","startDate":null,"trainDate":"28-30/04/2026,\n5-6/04/2026","empId":"CF306247","prefix":"นาย","firstTh":"เอกสิทธิ์","lastTh":"หาญกล้า","firstEn":"Ekasit","lastEn":"Hangar","nick":"บู","nickEn":"Boo","gl":"Hathaichanok Timmaneechay","tm":"Chartree Kaewwachira","resignDate":"N/A","M1":7,"M2":9,"C1":8,"C2":"-","T1":8,"T2":"-","BT1":9,"BT2":"-","L1":8,"L2":"-","QA":"8/10","RP":0.77,"workDays":null,"reason":null,"rpDate":"06/04/2026","rp":{"opening":1,"pitching":0.72,"objection":1,"documents":0.67,"closing":0.67,"inquiry":0.7}},{"batch":10,"seq":"27","status":"Active","startDate":"18/05/2026","trainDate":"19-22/05/2026","empId":"CF306285","prefix":"นางสาว","firstTh":"จิราพร","lastTh":"แก้วทอง","firstEn":"Jiraporn","lastEn":"Kaewthong","nick":"พักคร์","nickEn":"Pak","gl":"Hathaichanok Timmaneechay","tm":"Chartree Kaewwachira","resignDate":"N/A","M1":9,"M2":"-","C1":8,"C2":"-","T1":6,"T2":10,"BT1":10,"BT2":"-","L1":6,"L2":10,"QA":"10/10","RP":0.92,"workDays":null,"reason":null,"rpDate":"22/05/2026","rp":{"opening":1,"pitching":1,"objection":0.75,"documents":1,"closing":1,"inquiry":0.7}},{"batch":10,"seq":"28","status":"Resigned","startDate":null,"trainDate":"19-22/05/2026","empId":"CF306286","prefix":"นางสาว","firstTh":"ปณิดา","lastTh":"ชัยสูงเนิน","firstEn":"Panida","lastEn":"Chaisungnoen","nick":"ครีม","nickEn":"Cream","gl":"Hathaichanok Timmaneechay","tm":"Chartree Kaewwachira","resignDate":"26/06/2026","M1":7,"M2":9,"C1":7,"C2":10,"T1":8,"T2":"-","BT1":9,"BT2":"-","L1":9,"L2":"-","QA":"8/10","RP":0.47,"workDays":"1 Month","reason":"ได้งานใหม่","rpDate":"22/05/2026","rp":{"opening":1,"pitching":0.4,"objection":0.4,"documents":0.33,"closing":0.33,"inquiry":0.4}},{"batch":11,"seq":"29","status":"Active","startDate":"25/05/2026","trainDate":"26-27/05/2026","empId":"CF306290","prefix":"นางสาว","firstTh":"จิราพร","lastTh":"แซ่จิว","firstEn":"Jiraporn","lastEn":"Saejiw","nick":"กาฟิว","nickEn":"Gafew","gl":"Virunyupa Tongruk","tm":"Chartree Kaewwachira","resignDate":"N/A","M1":10,"M2":"-","C1":9,"C2":"-","T1":9,"T2":"-","BT1":10,"BT2":"-","L1":10,"L2":"-","QA":"10/10","RP":0.9,"workDays":null,"reason":"Fast Track","rpDate":"27/05/2026","rp":{"opening":1,"pitching":0.72,"objection":0.75,"documents":1,"closing":1,"inquiry":0.7}},{"batch":12,"seq":"30","status":"Active","startDate":"02/06/2026","trainDate":"9-15/06/2026","empId":"CF306303","prefix":"นางสาว","firstTh":"รสรินทร์","lastTh":"เหมือนสุวรรณ","firstEn":"Rosarin","lastEn":"Muensuwan","nick":"สอง","nickEn":"Song","gl":"Supannee Arthan","tm":"Piboon Kruensaksri","resignDate":"N/A","M1":10,"M2":"-","C1":7,"C2":10,"T1":7,"T2":10,"BT1":9,"BT2":"-","L1":8,"L2":"-","QA":"10/10","RP":0.9,"workDays":null,"reason":null,"rpDate":"15/06/2026","rp":{"opening":1,"pitching":1,"objection":1,"documents":0.67,"closing":0.67,"inquiry":0.7}},{"batch":12,"seq":"31","status":"Resigned","startDate":"08/06/2026","trainDate":"9-15/06/2026","empId":"CF306304","prefix":"นางสาว","firstTh":"พัชราภรณ์","lastTh":"อิทธิธารกุล","firstEn":"Phatcharapon","lastEn":"Itthitharnkul","nick":"เจ","nickEn":"Jay","gl":"Maliwan Maneeloon","tm":"Piboon Kruensaksri","resignDate":"06/07/2026","M1":9,"M2":"-","C1":7,"C2":10,"T1":9,"T2":"-","BT1":9,"BT2":"-","L1":9,"L2":"-","QA":"10/10","RP":0.6,"workDays":"28 Days","reason":"มีปัญหาเรื่องสุขภาพ","rpDate":"15/06/2026","rp":{"opening":1,"pitching":0.72,"objection":0.4,"documents":0.33,"closing":0.67,"inquiry":0.4}},{"batch":12,"seq":"32","status":"Active","startDate":"08/06/2026","trainDate":"9-15/06/2026","empId":"CF306305","prefix":"นางสาว","firstTh":"อลิสา","lastTh":"ฝอดสูงเนิน","firstEn":"Alisa","lastEn":"Fodsungnoen","nick":"ฟีม","nickEn":"Film","gl":"Kornpassorn Rae-nak","tm":"Jurapornphat Pimlee","resignDate":"N/A","M1":10,"M2":"-","C1":7,"C2":10,"T1":8,"T2":"-","BT1":9,"BT2":"-","L1":8,"L2":"-","QA":"9/10","RP":0.7,"workDays":null,"reason":null,"rpDate":"15/06/2026","rp":{"opening":0.67,"pitching":0.72,"objection":0.75,"documents":0.67,"closing":0.67,"inquiry":0.7}},{"batch":13,"seq":"33","status":"Active","startDate":"22/06/2026","trainDate":"22,25,26,29/06/2026","empId":"CF306326","prefix":"นางสาว","firstTh":"ธรียาพร","lastTh":"พูลศักดิ์","firstEn":"Tareeyaporn","lastEn":"Phoolsak","nick":"ไต้ฝุ่น","nickEn":"Typhoon","gl":"Jadsadapron Boonyasai","tm":"Jurapornphat Pimlee","resignDate":"N/A","M1":9,"M2":"-","C1":8,"C2":"-","T1":6,"T2":10,"BT1":8,"BT2":"-","L1":7,"L2":10,"QA":"10/10","RP":0.78,"workDays":null,"reason":null,"rpDate":"29/06/2026","rp":{"opening":1,"pitching":0.72,"objection":0.4,"documents":1,"closing":1,"inquiry":0.7}},{"batch":13,"seq":"34","status":"Active","startDate":"22/06/2026","trainDate":"22,25,26,29/06/2026","empId":"CF306327","prefix":"นางสาว","firstTh":"นชนก","lastTh":"พุ่มเกิด","firstEn":"Nachanok","lastEn":"Phumkert","nick":"เต้","nickEn":"Tae","gl":"Sirintra Buaphanngam","tm":"Saksiri Kessakorn","resignDate":"N/A","M1":10,"M2":"-","C1":5,"C2":10,"T1":7,"T2":10,"BT1":8,"BT2":"-","L1":10,"L2":"-","QA":"9/10","RP":0.65,"workDays":null,"reason":null,"rpDate":"29/06/2026","rp":{"opening":1,"pitching":0.4,"objection":0.4,"documents":0.67,"closing":1,"inquiry":0.7}},{"batch":13,"seq":"35","status":"Active","startDate":"22/06/2026","trainDate":"22,25,26,29/06/2026","empId":"CF306328","prefix":"นางสาว","firstTh":"วาสิตา","lastTh":"สงวนพงษ์","firstEn":"Wasita","lastEn":"Sanguanpong","nick":"ก้อย","nickEn":"Koy","gl":"Sirintra Buaphanngam","tm":"Saksiri Kessakorn","resignDate":"N/A","M1":8,"M2":"-","C1":7,"C2":10,"T1":9,"T2":"-","BT1":9,"BT2":"-","L1":9,"L2":"-","QA":"10/10","RP":0.92,"workDays":null,"reason":null,"rpDate":"29/06/2026","rp":{"opening":1,"pitching":1,"objection":1,"documents":0.67,"closing":1,"inquiry":0.7}},{"batch":13,"seq":"36","status":"Active","startDate":"22/06/2026","trainDate":"22,25,26,29/06/2026","empId":"CF306329","prefix":"นางสาว","firstTh":"อรนุช","lastTh":"จิตตะแสง","firstEn":"Oranut","lastEn":"Jittasang","nick":"ตอง","nickEn":"Tong","gl":"Thitarat Chaivachirarote","tm":"Chartree Kaewwachira","resignDate":"N/A","M1":8,"M2":"-","C1":8,"C2":"-","T1":6,"T2":10,"BT1":9,"BT2":"-","L1":10,"L2":"-","QA":"10/10","RP":0.65,"workDays":null,"reason":null,"rpDate":"29/06/2026","rp":{"opening":1,"pitching":0.4,"objection":0.4,"documents":0.67,"closing":1,"inquiry":0.7}},{"batch":14,"seq":"37","status":"Active","startDate":"29/06/2026","trainDate":"7-13/07/2026","empId":"CF306336","prefix":"นาย","firstTh":"อธิวัฒย์","lastTh":"ดงแสนแก้ว","firstEn":"Athiwat","lastEn":"Dongsankaeo","nick":"นนท์","nickEn":"Non","gl":"Supattra Kaewkongnork","tm":"Piboon Kruensaksri","resignDate":"N/A","M1":9,"M2":"-","C1":8,"C2":"-","T1":9,"T2":"-","BT1":8,"BT2":"-","L1":9,"L2":"-","QA":"8/10","RP":0.77,"workDays":null,"reason":null,"rpDate":"13/07/2026","rp":{"opening":1,"pitching":0.72,"objection":0.75,"documents":0.67,"closing":1,"inquiry":0.4}},{"batch":14,"seq":"38","status":"Active","startDate":"29/06/2026","trainDate":"7-13/07/2026","empId":"CF306337","prefix":"นางสาว","firstTh":"คนิตา","lastTh":"อ้นคง","firstEn":"Kanita","lastEn":"Onkong","nick":"อ้อม","nickEn":"Aom","gl":"Ratchanee Tenawat","tm":"Saksiri Kessakorn","resignDate":"N/A","M1":9,"M2":"-","C1":8,"C2":"-","T1":8,"T2":"-","BT1":10,"BT2":"-","L1":9,"L2":"-","QA":"10/10","RP":0.8,"workDays":null,"reason":null,"rpDate":"13/07/2026","rp":{"opening":0.67,"pitching":0.72,"objection":1,"documents":0.67,"closing":1,"inquiry":0.7}},{"batch":14,"seq":"39","status":"Active","startDate":"06/07/2026","trainDate":"7-13/07/2026","empId":"CF306364","prefix":"นาย","firstTh":"วรรณชนะ","lastTh":"แป้นทอง","firstEn":"Wanchana","lastEn":"Paenthong","nick":"บิว","nickEn":"Bew","gl":"Supannee Arthan","tm":"Piboon Kruensaksri","resignDate":"N/A","M1":9,"M2":"-","C1":5,"C2":10,"T1":7,"T2":9,"BT1":10,"BT2":"-","L1":10,"L2":"-","QA":"10/10","RP":0.77,"workDays":null,"reason":null,"rpDate":"13/07/2026","rp":{"opening":1,"pitching":0.72,"objection":1,"documents":0.67,"closing":0.67,"inquiry":0.4}},{"batch":14,"seq":"40","status":"Active","startDate":"06/07/2026","trainDate":"7-13/07/2026","empId":"CF306365","prefix":"นางสาว","firstTh":"นิภารัตน์","lastTh":"พัฒนะแสง","firstEn":"Niparat","lastEn":"Pattanasaeng","nick":"แบม","nickEn":"Bam","gl":"Supannee Arthan","tm":"Piboon Kruensaksri","resignDate":"N/A","M1":7,"M2":10,"C1":6,"C2":10,"T1":9,"T2":"-","BT1":7,"BT2":9,"L1":8,"L2":"-","QA":"9/10","RP":0.68,"workDays":null,"reason":null,"rpDate":"13/07/2026","rp":{"opening":1,"pitching":0.72,"objection":0.4,"documents":0.67,"closing":0.67,"inquiry":0.7}},{"batch":14,"seq":"41","status":"Active","startDate":"06/07/2026","trainDate":"7-13/07/2026","empId":"CF306366","prefix":"นาย","firstTh":"ณัฐวุฒิ","lastTh":"เมืองสมัย","firstEn":"Nattawut","lastEn":"Muangsamai","nick":"มิว","nickEn":"Mew","gl":"Supattra Kaewkongnork","tm":"Piboon Kruensaksri","resignDate":"N/A","M1":7,"M2":10,"C1":7,"C2":10,"T1":8,"T2":"-","BT1":10,"BT2":"-","L1":9,"L2":"-","QA":"10/10","RP":0.8,"workDays":null,"reason":null,"rpDate":"13/07/2026","rp":{"opening":1,"pitching":1,"objection":0.4,"documents":0.67,"closing":1,"inquiry":0.7}},{"batch":14,"seq":"42","status":"Active","startDate":"06/07/2026","trainDate":"7-13/07/2026","empId":"CF306367","prefix":"นาย","firstTh":"ชัชวิน","lastTh":"ศรีหนองพอก","firstEn":"Chatchawin","lastEn":"Srinongphok","nick":"ฟลุ้ค","nickEn":"Fluke","gl":"Ratchanee Tenawat","tm":"Saksiri Kessakorn","resignDate":"N/A","M1":10,"M2":"-","C1":9,"C2":"-","T1":7,"T2":10,"BT1":10,"BT2":"-","L1":8,"L2":"-","QA":"10/10","RP":0.83,"workDays":null,"reason":null,"rpDate":"13/07/2026","rp":{"opening":1,"pitching":1,"objection":0.4,"documents":0.67,"closing":1,"inquiry":1}},{"batch":15,"seq":"43","status":"Active","startDate":"13/07/2026","trainDate":"14-20/07/2026","empId":"CF306373","prefix":"นาย","firstTh":"ชยากร","lastTh":"โชติปราโมทย์","firstEn":"Chayakorn","lastEn":"Chotipramote","nick":"ครีม","nickEn":"Cream","gl":"Supattra Kaewkongnork","tm":"Piboon Kruensaksri","resignDate":"N/A","M1":9,"M2":"-","C1":10,"C2":"-","T1":7,"T2":9,"BT1":10,"BT2":"-","L1":10,"L2":"-","QA":"9/10","RP":0.75,"workDays":null,"reason":null,"rpDate":"20/07/2026","rp":{"opening":1,"pitching":0.72,"objection":0.75,"documents":0.67,"closing":0.67,"inquiry":0.7}},{"batch":15,"seq":"44","status":"Active","startDate":"13/07/2026","trainDate":"14-20/07/2026","empId":"CF306374","prefix":"นางสาว","firstTh":"สุณิตา","lastTh":"นามบุญลือ","firstEn":"Sunita","lastEn":"Nambunlue","nick":"เดียร์","nickEn":"Deer","gl":"Hathaichanok Timmaneechay","tm":"Chartree Kaewwachira","resignDate":"N/A","M1":9,"M2":"-","C1":7,"C2":9,"T1":6,"T2":10,"BT1":7,"BT2":10,"L1":7,"L2":10,"QA":"8/10","RP":0.62,"workDays":null,"reason":null,"rpDate":"20/07/2026","rp":{"opening":0.67,"pitching":0.4,"objection":0.75,"documents":0.67,"closing":0.67,"inquiry":0.7}}];
+;
+const TRAINER = "พิม (Pim)";  // Trainer
+
+// product meta: 8/10 pass first attempt, 9/10 pass RE-TEST
+const PRODUCTS = [
+  {key:'M', th:'สินเชื่อจำนำทะเบียนรถมอเตอร์ไซค์', cols:['M1','M2']},
+  {key:'C', th:'สินเชื่อจำนำทะเบียนรถยนต์', cols:['C1','C2']},
+  {key:'T', th:'สินเชื่อจำนำทะเบียนรถบรรทุก', cols:['T1','T2']},
+  {key:'BT',th:'Balance Transfer (โครงการรวมยอดหนี้)', cols:['BT1','BT2']},
+  {key:'L', th:'สินเชื่อเพื่อคนมีโฉนดที่ดิน', cols:['L1','L2']},
+];
+const RP_DIMS = [
+  {k:'opening',   label:'Opening / การเปิดสาย', w:15},
+  {k:'pitching',  label:'Pitching / การนำเสนอ', w:25},
+  {k:'objection', label:'Objection Handling / การรับมือข้อโต้แย้ง', w:20},
+  {k:'documents', label:'Documents / เอกสารขอสินเชื่อ', w:15},
+  {k:'closing',   label:'Closing & Compliance / การปิดการขาย', w:15},
+  {k:'inquiry',   label:'สอบถาม 6 เพิ่ม + 1', w:10},
+];
+// coaching recommendations per RP dimension, by score band (low <60, mid 60-74, high >=75)
+const RP_COACH = {
+  opening:{
+    low:['เปิดสายยังไม่สร้างความน่าเชื่อถือ ควรฝึกสคริปต์เปิดสายให้แนะนำตัว + บริษัท + วัตถุประสงค์ ภายใน 15 วินาทีแรก','ฝึกน้ำเสียงให้อบอุ่นและมั่นใจ ลดการอ่านสคริปต์แบบท่องจำ'],
+    mid:['เปิดสายได้ตามโครงสร้าง ควรเพิ่มการสร้าง rapport เช่น เอ่ยชื่อลูกค้าและถามคำถามสร้างความสัมพันธ์ก่อนเข้าเรื่อง'],
+    high:['เปิดสายได้ดี เป็นธรรมชาติ ให้รักษามาตรฐานนี้และเป็นตัวอย่างให้เพื่อนในทีม']
+  },
+  pitching:{
+    low:['นำเสนอเป็นการอ่านคุณสมบัติ ยังไม่แปลงเป็นประโยชน์ที่ลูกค้าได้รับ ควรฝึกสูตร Feature→Advantage→Benefit กับผลิตภัณฑ์ที่ถนัดก่อน','ฝึกนำเสนอโปรแกรมรวมยอดหนี้ (BT) และรถยนต์ (C) ให้เห็นภาพ เช่น เปรียบเทียบยอดผ่อนก่อน-หลังเป็นตัวเลข'],
+    mid:['นำเสนอได้ตรงผลิตภัณฑ์ ควรเพิ่มการยกตัวอย่างตัวเลข/เคสจริง และเน้นจุดเด่นที่ตรงกับความต้องการที่ลูกค้าบอกไว้'],
+    high:['นำเสนอได้กระชับ เชื่อมโยงประโยชน์กับลูกค้าชัดเจน ควรต่อยอดสู่การ cross-sell']
+  },
+  objection:{
+    low:['เจอข้อโต้แย้งแล้วมักยอมหรือเงียบ ควรฝึกเทคนิค Acknowledge → Clarify → Respond และเตรียมสคริปต์รับมือข้อโต้แย้งยอดฮิต (ดอกเบี้ยสูง / ขอคิดดูก่อน / เทียบเจ้าอื่น)','ทำ Objection Bank รวมคำถามลูกค้าที่เจอบ่อยพร้อมแนวตอบ แล้วฝึก role play ซ้ำจนคล่อง'],
+    mid:['รับมือข้อโต้แย้งพื้นฐานได้ ควรฝึกข้อโต้แย้งที่ซับซ้อนขึ้นและการพลิกข้อโต้แย้งเป็นโอกาสปิดการขาย'],
+    high:['จัดการข้อโต้แย้งได้อย่างมั่นใจ พลิกสถานการณ์ได้ดี']
+  },
+  documents:{
+    low:['ยังไม่แม่นเรื่องเอกสารขอสินเชื่อ ควรทบทวน checklist เอกสารแต่ละผลิตภัณฑ์ และฝึกแจ้งลูกค้าให้ครบถ้วนไม่ตกหล่น','ฝึกอธิบายเหตุผลของเอกสารแต่ละอย่างเพื่อให้ลูกค้าเข้าใจและเตรียมได้ถูกต้อง'],
+    mid:['อธิบายเอกสารได้พอใช้ ควรเพิ่มความแม่นยำเรื่องเงื่อนไขเฉพาะของแต่ละผลิตภัณฑ์เพื่อลดการติดต่อกลับ'],
+    high:['แจ้งเอกสารได้ครบถ้วน ชัดเจน ลดโอกาสเอกสารตกหล่น']
+  },
+  closing:{
+    low:['ไม่กล้าปิดการขาย ปล่อยให้บทสนทนาจบลอย ควรฝึกเทคนิคปิดการขาย (Assumptive / Alternative Close) และฝึกขอ commitment ทุกครั้ง พร้อมรักษา Compliance','ฝึกสังเกตสัญญาณซื้อและจับจังหวะปิดให้ทันโดยไม่ลังเล'],
+    mid:['ปิดการขายได้เมื่อลูกค้าพร้อม ควรฝึกสร้าง urgency และปิดเชิงรุกมากขึ้นเมื่อเจอลูกค้าที่ลังเล'],
+    high:['ปิดการขายได้เด็ดขาด จับจังหวะดี และรักษา Compliance ครบถ้วน']
+  },
+  inquiry:{
+    low:['ยังสอบถามข้อมูลเพิ่มเติม (6+1) ไม่ครบ ควรฝึกใช้ checklist คำถามให้เป็นนิสัยเพื่อเก็บข้อมูลลูกค้าให้ครบทุกครั้ง'],
+    mid:['สอบถามข้อมูลได้เกือบครบ ควรฝึกให้ครบทุกข้อและเป็นธรรมชาติมากขึ้น'],
+    high:['สอบถามข้อมูลเพิ่มเติมได้ครบถ้วน เก็บข้อมูลลูกค้าได้ดี']
+  }
+};
+function rpBand(v){ return v<60?'low':v<75?'mid':'high'; }
+
+const AVATAR_COLORS=['#1f3a5f','#c67f0a','#2f8f5b','#7a5cc0','#c0672a','#2a7a8f','#b5497a','#4a7a2a'];
+function avatarColor(s){let h=0;for(const c of s)h=(h*31+c.charCodeAt(0))>>>0;return AVATAR_COLORS[h%AVATAR_COLORS.length];}
+
+// pre-filled feedback from the Sum_Final_Signal deck (Key Insights + Flag/Signal), keyed by empId
+const PPTX_FEEDBACK = {"CF306094":{"feedbackTrain":"• จุดแข็งของผู้เข้าอบรม:  การเปิดสายสนทนาครบถ้วนปกติ การนำเสนอได้กระชับ , แจ้งเอกสารสินเชื่อเบื้องต้นครบถ้วน มีการปิดการขายที่ดี สอบถาม 6 เพิ่ม และ ประกันภัยรถยนต์ น้ำเสียงโทนเสียงกำลังดี\n• สิ่งที่ต้องปรับปรุง/โค้ชเพิ่มเติม: การรับมือข้อโต้แย้งอาจจะยังต้องฝึกให้เพิ่มมากขึ้นเพิ่มการชี้ประโยชน์ในการทำสินเชื่อ เช่น อัตราดอกเบี้ยลดต้นลดดอก และโครงการรวมยอดหนี้ ช่วยลดภาระและแบ่งเบาลูกค้า เน้นย้ำถามอาชีพผู้กู้","feedbackBehav":"• น้องได้มีการอบรมไป 1 วัน และลงสายจริงมาบ้างแล้ว และได้มาเข้าอบรมต่อให้จบครบหลักสูตร 3 วัน พร้อมเพื่อนที่เข้ามาใหม่อีกครั้ง\n• มีความมั่นใจในการ Role Play\n• มีน้ำใจในการให้คำแนะนำเพื่อนใน ฐานะที่ได้ลงสายจริงและมีการ Refer จริงมาแล้ว\n• แฟนทำงานที่นี่ ขายประกันการเดินทางจึงไม่มีปัญหา"},"CF306107":{"feedbackTrain":"• จุดแข็งของผู้เข้าอบรม: เปิดสายได้ครบตาม Script พื้นฐาน แจ้งเอกสารเบื้องต้นในการขอสินเชื่อได้ น้ำเสียงสุภาพ เหมาะกับงาน Telesales\n• สิ่งที่ต้องปรับปรุง/โค้ชเพิ่มเติม: ยังสับสนเรื่องเอกสารประกอบรายได้ในแต่ละอาชีพ การตอบข้อโต้แย้งยังไม่มั่นใจ ต้องฝึก Role Play เพิ่ม  ความแม่นยำด้านอัตราดอกเบี้ยยังไม่สม่ำเสมอ เน้นย้ำให้มั่นใจเรื่องการสอบถาม 6 เพิ่ม ยังไม่มีความมั่นใจในการปิดการขาย แนะนำให้ฝึก Role Play เพิ่มเติม","feedbackBehav":"• ตั้งใจเรียน และจริงจัง\n• ดูขาดความมั่นใจ ไม่มีความมั่นใจที่จะพูดและสีหน้าดูกังวลตลอดเวลา\n• แต่ตอนให้ Role Play ก็มีความพยายามที่จะพูด ถือว่าโอเคในระดับนึง\n• หากสอนแบบใจเย็นไม่กดดันมาก เชื่อว่าจะขายได้และพัฒนาได้\n• เวลาไม่เข้าใจก็กล้าถาม\n• หากพูดผิดขายผิดจะแจ้งเหตุผลเสมอว่าเกิดจากอะไร"},"CF306108":{"feedbackTrain":"• จุดแข็งของผู้เข้าอบรม: เปิดสายได้ครบตาม Script พื้นฐาน แจ้งเอกสารเบื้องต้นในการขอสินเชื่อได้ สอบถาม 6 เพิ่ม Script BOT ครบถ้วน\n• สิ่งที่ต้องปรับปรุง/โค้ชเพิ่มเติม: ยังสับสนเรื่องเอกสารประกอบรายได้ในแต่ละอาชีพ การนำเสนอยังไม่เป็นธรรมชาติ การตอบข้อโต้แย้งยังไม่มั่นใจต้องฝึก Role Play เพิ่ม ระมัดระวังการแจ้งข้อมูลที่อยู่นอกเหนืออำนาจเราเช่น หากลูกค้าถามว่าจะได้ตามราคาประเมินที่เราแจ้ง 100% ใช่ไหม เน้นย้ำให้แจ้ง ขึ้นอยู่กับคุณสมบัติและสภาพรถของลูกค้า","feedbackBehav":"• ตั้งใจเรียน\n• กล้า Role Play ถาม–ตอบ ไม่กลัวผิด\n• คอยช่วยเหลือเพื่อนร่วมอบรมเสมอ\n• บางครั้งก็ชอบกังวลไปก่อน\n• ควรฝึกให้กล้าปิดการขาย (Refer) ให้มากกว่านี้"},"CF306109":{"feedbackTrain":"• จุดแข็งของผู้เข้าอบรม: เปิดสายได้ครบตาม Script พื้นฐาน น้ำเสียงสุภาพ\n• สิ่งที่ต้องปรับปรุง/โค้ชเพิ่มเติม: ยังสับสนเรื่องเอกสารประกอบรายได้ในแต่ละอาชีพ การตอบข้อโต้แย้งยังไม่มั่นใจ ความแม่นยำด้านผลิตภัณฑ์โดยเฉพาะอัตราดอกเบี้ยยังไม่สม่ำเสมอ และควรเน้นย้ำข้อมูลสำคัญใน 6 เพิ่ม การนำเสนอขาย การรับมือข้อโต้แย้ง เอกสารการขอสินเชื่อเบื้องต้น การอธิบายจุดเด่นและประโยชน์ของผลิตภัณฑ์ยังไม่ชัดเจน ขาดการเชื่อมโยงกับความต้องการหรือ Pain point ของลูกค้า ต้องฝึกและทำความเข้าใจให้ดีก่อนลงขายจริง ต้องฝึก Role Play เพิ่ม","feedbackBehav":"• มีความมั่นใจในตัวเองสูง เพราะว่าผ่านการขายรถให้ลูกค้ามาหลายปี\n• ด้วยความมั่นใจในตัวเองที่สูงไปว่าจะเข้าใจทุกอย่างได้ จึงไม่ค่อยจดและฝึก ไม่มีคำถามในระหว่างฝึกอบรม\n• พอถึง Session Role Play Dead Air แต่ก็ยังมีความพยายามขายให้จบ\n• ชอบเล่าเรื่องประสบการณ์ที่เจอจากลูกค้าเมื่อสมัยตอนเป็นเซลล์ขายรถ\n• ไม่ถนัด คุยและใช้ Rate Book กับ Branch Profile ไปด้วยพร้อมกัน อาจต้องใช้เวลา\n• แนะนำให้ฟัง ไฟล์เสียงชายเยอะๆ และ Role Play เพิ่มก่อนลงปฏิบัติงานจริง"},"CF306110":{"feedbackTrain":"• จุดแข็งของผู้เข้าอบรม: เปิดสายได้ถูกต้องครบถ้วนตาม Script น้ำเสียงสุภาพ มั่นใจ สร้างความน่าเชื่อถือและความพร้อมในการสนทนากับลูกค้าได้ดี สามารถแจ้งเอกสารที่ใช้เบื้องต้นได้\n• สิ่งที่ต้องปรับปรุง/โค้ชเพิ่มเติม: การอธิบายจุดเด่นและประโยชน์ของผลิตภัณฑ์ยังไม่ชัดเจน ขาดการเชื่อมโยงกับความต้องการหรือ Pain point ของลูกค้า ยังไม่สามารถตอบข้อโต้แย้งของลูกค้าได้อย่างมั่นใจ ต้องฝึกการใช้ Script และแนวทางการตอบในสถานการณ์ต่างๆ เพิ่มเติม แนะนำให้เรียงลำดับขั้นตอนการขายเพื่อป้องกันการลืมแจ้งหรือถามข้อมูลสำคัญจากลูกค้า เน้นย้ำอัตราดอกเบี้ยให้มั่นใจอีกสักนิด และวันนัดหมายแจ้งวันและเวลาให้ชัดเจน","feedbackBehav":"• มีความตั้งใจสูงมากและจดเยอะมาก\n• สมาธิสั้นบ้าง อาจจะต้องย้ำในเรื่องเดิมหลายรอบ\n• มีความพยายาม ทำความเข้าใจในสิ่งที่สอน\n• ระวังเรื่องการแจ้งเรทราคาประเมินรถลูกค้า เน้นย้ำเป็นการประเมินราคาคร่าวๆ ขึ้นอยู่กับคุณสมบัติและสภาพรถของลูกค้าเสมอ\n• กล้าถามกล้า Role Play อาจจะตื่นเต้นบ้าง แต่ถือว่าทำได้ดีในระยะเวลาที่จำกัด\n• ภายนอกอาจดูดุ แต่อัธยาศัยดีมาก\n• โปรแกรมที่เกี่ยวข้อง หากมีคำศัพท์ที่มีภาษาอังกฤษ อาจจะต้องสอนเพิ่มเติม"},"CF306113":{"feedbackTrain":"• จุดแข็งของผู้เข้าอบรม: เปิดสายได้ถูกต้องครบถ้วนตาม Script น้ำเสียงสุภาพ มีความมั่นใจ และสร้างความน่าเชื่อถือในช่วงเริ่มต้นการสนทนาได้ดี\n• สิ่งที่ต้องปรับปรุง/โค้ชเพิ่มเติม: ตอนซ้อมไม่ลืมแจ้งเอกสารประกอบการขอสินเชื่อเบื้องต้น แต่ตอนประเมิน Role Play ลืมแจ้งเพราะตื่นเต้น เข้าใจขั้นตอนการปิดการขายและข้อกำหนดพื้นฐาน แต่ยังต้องเพิ่มความลื่นไหลและความมั่นใจในช่วงท้ายของการสนทนา ยังไม่สามารถตอบข้อโต้แย้งของลูกค้าได้อย่างมั่นใจ ต้องฝึกการใช้ Script และแนวทางการตอบในสถานการณ์ต่างๆ เพิ่มเติม กรรมสิทธิ์รถแนะนำให้ถามลูกค้าและทวนว่าเป็นชื่อลูกค้าใช่หรือไม่","feedbackBehav":"• ตั้งใจเรียน\n• ในคลาสดูเป็นคนเงียบๆ แต่เวลาสงสัยก็กล้าถาม"},"CF306111":{"feedbackTrain":"• จุดแข็ง: มีน้ำเสียงที่เป็นมิตร สุภาพ มีไหวพริบในการแก้ไขปัญหา เช่น ลูกค้าไม่แน่ใจว่ารถ ปี 2009 หรือ 2010 ก็สามารถแจ้งลูกค้าว่า “เบื้องต้นขออนุญาตเช็คข้อมูลวงเงินเบื้องต้นให้เป็นปี 2009 ก่อน” เป็นต้น\n• สิ่งที่ควรปรับปรุงเพิ่มเติม\n• ศึกษาข้อมูลผลิตภัณฑ์เงื่อนไขต่างๆให้แม่นยำ Scope คำถามลูกค้าให้ชัดเจน เช่นกรณีจำนำทะเบียน หรือ รีไฟแนนซ์ เพื่อที่จะสามารถแจ้งข้อมูลลูกค้าได้ถูกต้อง แจ้งเอกสารเบื้องต้นในการขอสินเชื่อต้องแจ้งให้ชัดเจนและครบถ้วน\n• แนะนำให้สรุปความรู้อบรม หรือที่ได้รับการแนะนำกับพี่หน้างานเพื่อนำไปปรับใช้ในการทำงานต่อไป","feedbackBehav":"• ค่อนข้างติดเล่นโทรศัพท์ เมื่อนั่งฟังอบรมสักพักก็จะหยิบโทรศัพท์มากดเล่น\n• ง่วงนอนบ่อยๆระหว่างอบรม ทำให้หลุด Focus\n• ได้ยินเสียงบ่นว่าข้อมูลเยอะ บางจังหวะทำให้รู้สึกท้อแท้\n• มีความกังวลในการเดินทางในการทำงาน พูดให้ฟังบ่อย แต่ก็แจ้งว่าคงต้องใช้เวลาในการปรับตัวสักระยะ และก็แจ้งว่าจะพยายามปรับตัว"},"CF306127":{"feedbackTrain":"• สิ่งที่ควรปรับปรุง\n• การให้ข้อมูลผลิตภัณฑ์ ยังวกวนอยู่ ควรมีกการเรียบเรียงข้อมูลเป็นเพื่อให้การถ่ายทอดส่งต่อลูกค้ามีความครบถ้วนชัดเจน ไม่ตกหล่น\n• ศึกษาผลิตภัณฑ์ข้อมูลให้แม่นยำ เพื่อให้เกิดความชำนาญ และสร้างความน่าเชื่อถือให้ลูกค้าระหว่างคุยสาย\n• ฝึกเพิ่มเติมเรื่องข้อโต้แย้ง เช่น ลูกค้าถามต้องใช้คนค้ำไหม แนะนำให้ตอบ “ลูกค้าไม่ต้องกังวลค่ะ ทางบริษัทมีหลากหลายเงื่อนไข ขึ้นอยู่กับคุณสมบัติและสภาพรถของลูกค้า แนะนำให้นำรถเข้าสาขา เพื่อประเมินอีกที เป็นต้น”\n• วันและเวลานัดหมาย เข้าสาขา ควรแจ้งลูกค้าให้ชัดเจน","feedbackBehav":"• มีความตั้งใจในระหว่างอบรมเป็นอย่างดี จดบันทึก\n• พนักงานจะมีการซักถามระหว่างเรียนเสมอๆ\n• ในช่วงของการ Role Play มีน้ำเสียงที่น่าฟัง\n• ตั้งใจ แต่เรียนรู้ค่อนข้างช้า หากค่อยๆ อธิบายและคอยย้ำเตือนบ่อยๆ เชื่อว่าจะสามารถพัฒนาต่อไปได้"},"CF306136":{"feedbackTrain":"• สิ่งที่ควรปรับปรุง\n• ในช่วงการ Role Play พนักงานสามารถให้ข้อมูลได้อย่างครบถ้วนชัดเจน\n• ส่วนที่ควรเพิ่มศึกษาความข้อมูลผลิตภัณฑ์ เงื่อนไข อัตราดอกเบี้ยให้แม่นยำ มากยิ่งขึ้น\n• แนะนำให้ถามอาชีพลูกค้าตั้งแต่เนิ่น ๆ\n• ทำความเข้าใจความต้องการของลูกค้าเพื่อนำเสนอผลิตภัณฑ์ให้ตรงกับความต้องการของลูกค้า\n• เอกสารแสดงรายได้ต้องแจ้งให้ถูกตามอาชีพของลูกค้า\n• เน้นย้ำเรื่องการถามทะเบียนรถลูกค้า","feedbackBehav":"• มีความตั้งใจในระหว่างอบรมเป็นอย่างดี จดบันทึก , ซักถามเพิ่มเติมระหว่างเรียนเมื่อมีข้อสงสัย\n• มีน้ำเสียงไพเราะน่าฟัง\n• มีความเป็นตัวของตัวเองสูง มีความตั้งใจและฟังในสิ่งที่เราจะสื่อสาร บางอย่างอาจจะต้องใช้เวลาในการสอน แต่โดยรวมน้องสามารถพัฒนาไปได้อีกมาก"},"CF306150":{"feedbackTrain":"• สิ่งที่ควรปรับปรุงเพิ่มเติม\n• เนื่องจากมีประสบการณ์สายธนาคารมา ควรรู้ Process การประสานงานเพิ่มเติม\n• แนะนำให้ถามอาชีพลูกค้าตั้งแต่เนิ่น ๆ และศึกษาเพิ่มเติมเรื่องเอกสารการขอสินเชื่อเบื้องต้น ให้แม่นยำ และเน้นย้ำเรื่องการถาม ภาษี/พ.ร.บ.\n• การนำเสนอสินเชื่อยังมีความติดๆ ขัดๆ หมั่นศึกษาเงื่อนไขผลิตภัณฑ์อย่างสม่ำเสมอ โดยเฉพาะอัตราดอกเบี้ย\n• เน้นย้ำเรื่องถามเลขทะเบียนรถ และจังหวัดป้ายทะเบียน\n• เน้นย้ำเรื่องการถามเบอร์โทรและเบอร์สำรอง","feedbackBehav":"• มีทักษะการสื่อสารที่ดี มีส่วนร่วมในการแสดงความคิดเห็น\n• มีส่วนร่วมในการตอบคำถามในระหว่างอบรม\n• มีกำแพงเล็กน้อย แต่หากพูดคุยด้วยเหตุผล ก็พร้อมที่จะยอมรับและรับฟังเสมอ"},"CF303592":{"feedbackTrain":"• สิ่งที่ควรปรับปรุง\n• เมื่อ trainer ถาม , ทวนข้อมูล อาจจะยังแจ้งข้อมูลไม่ครบ หรือ ไม่ถูกต้อง ให้พนักงานฝึกฝน หมั่นทบทวนเงื่อนไขผลิตภัณฑ์สินเชื่อให้เกิดความชำนาญ\n• เรียนรู้การประสานงานเกี่ยวกับ Telesale Loan เพื่อนำไปปรับใช้ในการทำงาน เนื่องจากยังติดคำพูดของการขายประกันมา ช่วงแรก ๆ ต้องระมัดระวังในขณะขาย และเน้นย้ำเรื่องการถาม ภาษี/พ.ร.บ.\n• แนะนำให้สอบถามอาชีพลูกค้าตั้งแต่เนิ่น ๆ และเวลาลูกค้าแจ้งว่าทำงาน Freelance แนะนำให้ถามประเภทงานเพิ่มเติม\n• แนะนำให้แจ้งวันและเวลานัดหมายเข้าสาขาแก่ลูกค้าให้ชัดเจน","feedbackBehav":"• มีส่วนร่วมในการอบรมเป็นอย่างดี แชร์ประสบการณ์ ,สอบถามข้อมูลเพิ่มเติมเมื่อมีข้อสงสัย"},"CF306153":{"feedbackTrain":"• สิ่งที่ควรปรับปรุงเพิ่มเติม\n• การ Cross-Sell ควรนำเสนอผลิตภัณฑ์อื่นเพิ่มเติม เช่น สินเชื่อ Land เพื่อเปิดโอกาสทางเลือกให้ลูกค้า เป็นการเพิ่มโอกาสปิดการขาย และสะท้อนความเป็นที่ปรึกษาทางการเงิน และทบทวนเอกสารที่ต้องใช้รีไฟแนนซ์ ให้แม่นยำ\n• การอธิบายโครงการเพิ่มเติม มีการกล่าวถึง “โครงการรวมหนี้” แต่ไม่ได้อธิบายรายละเอียดต่อ ควรให้ข้อมูลเบื้องต้น เช่น จุดประสงค์โครงการ ประโยชน์ และเงื่อนไขคร่าว ๆ เพื่อสร้างความเข้าใจและกระตุ้นความสนใจลูกค้า\n• ทักษะการสื่อสาร จังหวะการพูดมีความตะกุกตะกัก ใช้คำว่า “เอ่อ / อ่า” ค่อนข้างบ่อย แนะนำให้ ฝึกควบคุมความตื่นเต้น เว้นจังหวะหายใจ รักษาจังหวะการพูดให้สม่ำเสมอ ไม่เร็วหรือช้าเกินไป จะช่วยให้การนำเสนอดูน่าเชื่อถือและน่าสนใจมากขึ้น","feedbackBehav":"• ตั้งใจเรียน มีส่วนร่วมในการตอบคำถามในระหว่างอบรม\n• ตั้งคำถามเสมอเวลาไม่เข้าใจ\n• มักนำสิ่งที่ได้รับคำแนะนำจาก พนักงานปัจจุบันบางอย่างมาถาม เช่น “เมื่อ Check Rate Book ได้ราคาประเมิน 108,000 บาท ให้แจ้งกลมๆ 100,000 บาท” แนะนำให้แจ้งลูกค้าตามราคาประเมินใน Rate Book ตามความเป็นจริง"},"CF306154":{"feedbackTrain":"• สิ่งที่ควรปรับปรุง\n• เมื่อไม่พบรุ่นรถ ควรสอบถามเพิ่มเติม เช่น ปีรถ รุ่นย่อย เพื่อขอส่งประสานงานให้สาขาพิจารณาเพิ่มเติม\n• เมื่อลูกค้าแจ้งว่ามีรถยนต์แต่ยังผ่อนไม่หมด ควรสอบถามรายละเอียดเพิ่มเติมทันที เช่น ผ่อนกับบริษัทใด ผ่อนมาแล้วกี่งวด ทำให้ไม่สามารถประเมินคุณสมบัติเบื้องต้นได้\n• การให้ข้อมูลเอกสารไม่ถูกต้อง แจ้งให้เตรียม “สำเนาบัตรประชาชน” ข้อมูลที่ถูกต้อง: ต้องนำ “บัตรประชาชนตัวจริง”\n• ไม่เสนอผลิตภัณฑ์เพิ่มเติม ควรนำเสนอทางเลือกอื่นที่เหมาะสม เพื่อเพิ่มโอกาสในการปิดการขาย\n• ทบทวนเงื่อนไชอัตราดอกเบี้ยของทุกผลิตภัณฑ์ ให้แม่นยำอยู่เสมอ","feedbackBehav":"• ตั้งใจเรียน ตั้งคำถามเสมอเวลาที่สงสัย ให้ความร่วมมือในการตอบคำถาม\n• หากต้องฟังการสอนยาวนานต่อเนื่อง จะมีการหลุดโฟกัส และจะตอบสนองโดยการแหย่เพื่อนเล่นบ้าง เพื่อผ่อนคลาย\n• มีความเป็นตัวของตัวเองสูง มีกำแพงบางอย่างเล็กน้อย"},"CF306155":{"feedbackTrain":"• สิ่งที่ควรปรับปรุง\n• ทบทวน Product Knowledge ให้แม่นยำ โดยเฉพาะดอกเบี้ย วงเงิน และเงื่อนไขผลิตภัณฑ์  ไม่มั่นใจเรื่องระยะเวลาอนุมัติสินเชื่อ มีความเข้าใจว่าวงเงินสินเชื่อตัวรถและบัตรติดล้อเป็นคนละวงเงินกัน\n• ทักษะการตั้งคำถามเชิงวิเคราะห์ ใช้เวลาค้นหายี่ห้อ/รุ่นรถนาน ควรสอบถามลูกค้าเพิ่มเติม ไม่สอบถามประเภทรถกระบะหรือชื่อบริษัทไฟแนนซ์ที่ลูกค้าผ่อนอยู่ ช่วง Refer ขาดการสอบถามข้อมูลสำคัญ เช่น ทะเบียนรถ / จังหวัด\n• ไม่แจ้ง Script RL ตามขั้นตอน ขาดความมั่นใจในบางช่วง\n• ควรใช้ประโยคเพื่อรักษาความเป็นมืออาชีพ เช่น “ขออนุญาตแจ้งข้อมูลเพิ่มเติมนะคะ”","feedbackBehav":"• ตั้งใจเรียน จดตลอด แต่เป็นคนพูดน้อย\n• ให้ความร่วมมือในการตอบคำถาม\n• กล้าแสดงออกในการ Role Play"},"CF306160":{"feedbackTrain":"• เนื่องจากไม่มีประสบการณ์การขาย/Telesales มาก่อน จึงยังไม่เข้าใจใน Process การทำงานต่างๆ ควรศึกษา Process การขายและการประสานงานเพิ่มเติม\n• หมั่นศึกษาเงื่อนไขผลิตภัณฑ์อย่างสม่ำเสมอ โดยเฉพาะอัตราดอกเบี้ย\n• เพิ่มทักษะการการนำประโยชน์ของผลิตภัณฑ์ที่ลูกค้าจะได้รับ\n• หมั่นทบทวนเรื่องเอกสารการขอสินเชื่อเบื้องต้น และ Process ของการ รีไฟแนนซ์ ให้แม่นยำอยู่เสมอ\n• เพิ่มการฝึกและศึกษาการตอบข้อโตแย้งอย่างสม่ำเสมอ","feedbackBehav":"• ตั้งใจเรียน มีส่วนร่วมในการตอบคำถามในระหว่างอบรม\n• ตั้งคำถามเสมอเวลาไม่เข้าใจ แต่ต้องไว้ใจแล้งจึงจะกล้าถาม ดูเป็นคนไว้ใจคนยาก\n• ชอบพูดบ่อยครั้งว่า “จะรอดไหม พี่อาจจะไม่รอด” พอเทรนเนอร์ให้กำลังใจ ก็จะดีขึ้น แต่พอเวลาผ่านไปก็กลับมาพูดเหมือนเดิม อาจจะต้องคอยพูด Positive บ่อยๆ ถึงจะสามารถขับเคลื่อนความตั้งใจได้\n• หากได้รับการ Set Mindset ที่ถูกต้องอย่างสม่ำเสมอ คิดว่าสามารถพัฒนาได้  ดูตั้งใจและมีความพยายาม\n• การคบเพื่อนสำคัญกับ Trainee รายนี้ เนื่องจากเวลาได้ยินเพื่อนบอกยาก บ่นให้ฟัง ก็จะมีความใจเสีย ด้วยจากที่ไม่เคยมีประสบการณ์มาเป็นทุนเดิมอยู่แล้ว พอเจอ Mindset จากคน Attitude ไม่โอเค ก็อาจจะมีแนวโน้มในการยอมแพ้สูง"},"CF306179":{"feedbackTrain":"• สามารถควบคุมโทนเสียงได้ในขณะที่กำลังตื่นเต้นมากๆ\n• แนะนำให้หมั่นทบทวนอัตราดอกเบี้ยอย่างสม่ำเสมอ\n• แนะนำให้ฝึกฝนเพิ่มเติมเรื่องการรับมือกับข้อโต้แย้ง ตอน Role Play ลูกค้าแจ้งว่า “มีรถอีก 1 คัน แต่ยังผ่อนกับเพื่อนไม่หมด นำมาขอสินเชื่อได้ไหม” Trainee ไม่สามารถตอบคำถามลูกค้าได้และ Dead Air\n• หมั่นทบทวนเอกสารเบื้องต้นในการขอสินเชื่ออย่างสม่ำเสมอ ว่าในแต่ละผลิตภัณฑ์ ควรใช้เอกสารอะไรบ้าง และฝึกสอบถามความต้องการ เช่น วงเงิน\n• มีไหวพริบการนัดหมายลูกค้า เช่น “ลูกค้าสะดวกเข้าสาขาบ่ายวันนี้เลยไหมคะ”","feedbackBehav":"หมายเหตุ: (คาดหวังค่าคอม 10K ขึ้นไป)\n• ตั้งใจเรียน มีส่วนร่วมในการตอบคำถามในระหว่างอบรม\n• ภายนอกดูเป็นคนเงียบๆ เหมือน Introvert ไม่กล้าบอกความกังวลแต่ถ้าไว้ใจ และหากเรารู้จักใช้คำพูด Trainee ก็จะกล้าแชร์ว่าตัวเองกำลังกังวลเรื่องอะไรอยู่\n• บางครั้งจดจ่อกับบางสิ่งมากเกินไปจนลืมโฟกัสกับอีกสิ่งนึงที่กำลังเกิดขึ้น\n• บางครั้งมีคำพูดว่า “ยาก” และมักทำหน้าตกใจ เวลาเจอเนื้อหาเยอะๆ แต่ตอน Role Play สำหรับคนที่ไม่เคยมีประสบการณ์ด้านนี้มาก่อน ก็สามารถทำได้เกินความคาดหวังของ Trainer หมั่นฝึกฝนเป็นประจำ คาดว่าจะสามารถพัฒนาได้ดีกว่านี้\n• สามารถเรียนรู้ได้ไว แต่พอเวลาผ่านไปจะลืมไวเช่นกัน แต่พอลองให้ได้ฝึกฝนหัวข้อเดิม ซ้ำๆ หลายครั้ง สามารถเห็นพัฒนาการที่ดีขึ้น\n• การตัดสินใจว่าจะอยู่หรือไปมักจะขึ้นอยู่กับสิ่งที่เกิดขึ้นในเดือนแรกของการทำงาน"},"CF306180":{"feedbackTrain":"• ค่อนข้างทำได้ดีในเรื่องการจัดลำดับขั้นตอนในการขาย น้ำเสียงและโทนเสียงดี\n• ช่วง Role Play บางครั้งมีการลืมถามลูกค้า ในตัวโฉนดที่ดินและรถคันอื่น แต่พอลอง Role Play ฝึกเรื่อย ๆ  มองเห็นพัฒนาการไปในทางที่ดีขึ้น\n• อาจจะยังช้าเรื่องการใช้โปรแกรมไปด้วยคุยไปด้วย แนะนำให้ทำความเข้าใจอีกรอบเพื่อความถูกต้องและแม่นยำ\n• แนะนำให้ฝึกฝนการรับมือข้อโต้แย้งเพิ่มเติม เพื่อเพิ่มโอกาสในการปิดการขาย\n• เน้นย้ำให้หมั่นทบทวนเอกสารและอัตราดอกเบี้ยต่างๆ อย่างสม่ำเสมอ","feedbackBehav":"หมายเหตุ: (คาดหวังค่าคอม 30K ขึ้นไป)\n• ตั้งใจเรียน มีส่วนร่วมในการตอบคำถามในระหว่างอบรม\n• เวลาไม่เข้าใจ บางครั้งกล้าถาม บางครั้งไม่กล้าถาม และจะทำหน้า งงๆ พอถามว่าเข้าใจไหม บางครั้งจะลังเลที่จะตอบเหมือนกังวลว่าจะโดนดุ\n• เป็นคนเงียบๆ Trainee แจ้งว่าเป็นคนที่ โกรธคนยาก ไม่ค่อยโกรธ แต่คำพูดบางอย่างที่ไม่สมเหตุสมผลอาจจะมีผลกระทบต่อจิตใจบ้าง\n• ดูเป็นคนสุภาพ ง่ายๆ แต่ยังขาดความมั่นใจในตัวเอง\n• บางประโยคใช้เวลานึกนานก่อนจะพูดออกมา ในตอน Role Play เหมือนนึกออกแต่ติดอยู่ในหัวแต่เรียบเรียงคำพูดไม่ถูก แนะนำให้ฝึกทักษะ การอธิบายสื่อสารและการขยายความเพิ่มเติม"},"CF306200":{"feedbackTrain":"• มีสติในการ Role Play ตะกุกตะกักเวลาเจอข้อโต้แย้งบ้างแต่สามารถ Handle ได้ดี แต่คุมจังหวะน้ำเสียงและจังหวะการขาย ได้ดี มีไหวพริบในระดับนึง\n• หมั่นทบทวนอัตราดอกเบี้ย อย่างสม่ำเสมอ ทักษะการปิดการขาย ยังไม่กล้าที่จะปิดการขายแบบชัดเจน อาจจะมีการอ้อมค้อมมากจนเกินไปอาจจะทำให้เสียโอกาส แนะนำให้ฝึกเรื่องจังหวะในการ Refer เพิ่มเติม และหมั่นทบทวนเงื่อนไขผลิตภัณฑ์ให้ Up-to-date อยู่เสมอ และตอนเทส Role Play การนัดหมายลูกค้าแนะนำให้แจ้งวันและเวลานัดหมายเป็นตัวเลขให้ชัดเจน\n• หากสามารถเติมและโค้ชเพิ่มเติมได้เรื่อย ๆ คิดว่าจะเป็นนักขายที่ดีได้ค่ะ","feedbackBehav":"• ตั้งใจเรียน มีส่วนร่วมในการตอบคำถามในระหว่างอบรม ดูแล้วน่าจะเป็น Extrovert เพราะช่างพูดช่างคุย มากๆ เป็นนักเรียนที่น่ารัก\n• มีความกระตือรือร้นในการเรียน มักจะถามทุกอย่างที่ไม่เข้าใจเสมอ\n• เป็นคนที่ค่อนข้างมั่นใจในเรื่องที่ตัวเองมีข้อมูลหรือมีความรู้ในเรื่องนั้นมา ก็จะมั่นใจมากจนอาจจะมีกำแพง Ego บางๆ ในการเปิดรับความเห็นต่างหรือความคิดเห็นเพิ่มเติมบ้าง แต่หากคนสอนก็มี Ego ด้วย อาจจะมีปัญหาในการสื่อสารกันได้ แต่หากคนสอนมีความเข้าใจและไม่ Ego เปิดใจและเลือกใช้คำพูดที่ดี การสนทนาก็จะสามารถผ่านไปได้ด้วยดี\n• หากเป็นสิ่งใหม่หรือความรู้ใหม่ที่ไม่เคยทราบมาก่อน ก็จะตื่นเต้นและเปิดใจเรียนรู้ รับฟังและรับความคิดเห็นอยู่เสมอ อีกทั้งยังกล้ายอมรับจุดอ่อนของตัวเองแจ้งตรงๆ กับผู้สอน"},"CF306233":{"feedbackTrain":"• แนะนำให้หมั่นทบทวนอัตราดอกเบี้ย อย่างสม่ำเสมอ\n• ทบทวนเอกสารการขอสินเชื่อเบื้องต้น โดยเฉพาะเอกสารการ Refinance  เนื่องจากตอน Role Play ไม่ได้แจ้ง แต่เทรนเนอร์ได้ Feedback และทบทวนให้เพิ่มเติม\n• น้ำเสียงสุภาพดีแต่ยังฟังเหมือนท่อง อยากให้เพิ่มความมั่นใจ หากแม่นยำใน Process การขาย คาดว่าจะขายได้เป็นธรรมชาติมากกว่านี้\n• การรับมือข้อโต้แย้งเบื้องต้นทำได้โอเค หากได้ฝึกจากเคสจริง ต่อเนื่อง สามารถพัฒนาได้อีก","feedbackBehav":"• ตั้งใจเรียน มีส่วนร่วมในการตอบคำถามในระหว่างอบรม\n• มีอาการเครียดเล็กน้อยตอน Role Play แต่ก็สามารถตั้งสติและ Role Play ต่อไปได้ อาจจะมีติดๆ ขัดๆ เพราะ ตื่นเต้นมาก\n• ไม่ชอบอะไรที่ไม่เป็นธรรม เช่น การลำเอียง\n• ไม่ตัดสินคนเร็วจากภายนอก หากรู้สึกว่าไม่สบายใจเรื่องคน ก็จะลองเช็คดูก่อนว่า บุคคลคนนั้นเป็นแบบนั้นอยู่แล้วหรือไม่ เนื่องจาก เพื่อนร่วมงานอาจจะมีผลต่อความรู้สึกในการทำงานบ้าง\n• เกือบหลับ หลุดโฟกัสบ้าง เนื่องจากเนื้อหาเยอะ แต่ก็ไม่หลับ พยายามมีสติ และเรียนต่อได้จนจบ\n• หากยังไม่มั่นใจสามารถส่งมา Role-Play เพิ่มได้"},"CF306234":{"feedbackTrain":"• น้ำเสียงดี มีจังหวะการพูดที่ดี น่าฟัง\n• Role Play สติขาดหายไปบ้าง เวลาเจอข้อโต้แย้งมีความตกใจ เช่น “ลูกค้าถามว่าทำไมให้วงเงิน โฉนดน้อยจัง ซื้อ-ขายได้หลักล้าน” ทาง Trainee ตอบว่าเป็น Policy ของบริษัท Trainer ได้ Feedback เบื้องต้นแล้วว่าให้ชี้ประโยชน์ให้ลูกค้าเห็น ของบริษัทเราเป็นการจำนำโฉนด ไม่ต้องสลักหลัง ดอกเบี้ยลดต้นลดดอก เป็นต้น\n• หมั่นทบทวนเงื่อนไขผลิตภัณฑ์ต่างๆ อย่างสม่ำเสมอ โดยเฉพาะ ประเภทโฉนดที่ดินที่เรารับ และสอบถามว่ามีสิ่งปลูกสร้างด้วยไหม","feedbackBehav":"• ตั้งใจเรียน มีส่วนร่วมในการตอบคำถาม\n• ไม่ค่อยมั่นใจในตัวเอง ชอบคิดไปก่อนว่าจะเกิดอะไรขึ้น เช่น ชอบคิดไปก่อนว่า จะเจอข้อโต้แย้งอะไร ทำให้รน และ ตะกุกตะกัก บ้าง\n• โฟกัสเรื่องค่าคอมมิชชั่นมา อันดับ 1 ถ้าทำค่าคอมได้ตามเป้าหมายที่ต้องการก็จะสามารถ ทำงานได้เรื่อย ๆ\n• เพื่อนร่วมงาน สภาพแวดล้อมมีความสำคัญ ลำดับ 2 รองจากเรื่อง “เงิน”\n• Trainee แจ้งว่าเนื่องจากไม่ได้ทำงานประจำมา 2 ปี ก็จะรู้สึกตื่นเต้นบ้าง มักจะกังวลไปก่อนตลอด แต่ พอให้ลอง Role Play ผลคือ Skill โดยรวมถือว่าอยู่ในเกณฑ์ที่ดี สามารถพัฒนาต่อยอดได้ ขอให้ได้ฟังตัวอย่างในการขายที่ถูกต้องเยอะๆ ก่อนลงงาน จริงเพื่อลดความประหม่า"},"CF306232":{"feedbackTrain":"• แนะนำให้ทบทวนเอกสารในการขอสินเชื่อเบื้องต้น โดยเฉพาะเอกสารแสดงรายได้ว่าต้องใช้เอกสารประเภทไหนของแต่ละอาชีพ\n• แนะนำให้ทบทวนเงื่อนไขและเอกสารโครงการรวมยอดหนี้เพิ่มเติม\n• เน้นย้ำเรื่องการแจ้ง Script BOT ให้ครบถ้วน\n• เน้นย้ำวันนัดหมาย ให้ชัดเจน เช่น วันจันทร์ ที่ 11 พฤษภาคม เวลา 9.00 น.\n• หมั่นฝึกฝนทบทวนเรื่องการรับมือกับข้อโต้แย้ง และเน้นย้ำอัตราดอกเบี้ยให้มั่นใจก่อนปฏิบัติงานจริง\n• เน้นย้ำการถาม 6 เพิ่ม และ เพิ่มเติมการถามประกันภัยรถยนต์ เพื่อเพิ่มโอกาสในการเพิ่มยอดขาย\n• แนะนำให้เพิ่มเติม Process ของการขายให้แม่นยำก่อนปฏิบัติงานจริง","feedbackBehav":"หมายเหตุ: (Goal Commission 20K ขึ้นไป)\n• มีส่วนร่วมในการ ถาม-ตอบ หลุด โฟกัส และ เล่นโทรศัพท์บ้างในบางครั้ง\n• มีความเป็นตัวของตัวเองค่อนข้างสูง กล้าแสดงออก\n• มีความ Independence สูง อยากได้ความมั่นคงในการทำงาน\n• สามารถรับ Feedback ได้ บางอย่างสามารถฟังแล้วปรับได้เลย แนะนำให้Recheck หลังโค้ชเสมอว่าเข้าใจจริงไหม หากเข้าใจ ให้อธิบายว่าเข้าใจว่าอย่างไร บางเรื่องเข้าใจช้าหน่อย แต่ถ้ามีความพยายามอธิบาย ในท้ายที่สุดเชื่อว่าจะสามารถเข้าใจได้\n• มองเห็นพัฒนาการ หากมีความขยันเชื่อว่าสามารถพัฒนาได้อีก"},"CF306242":{"feedbackTrain":"• แนะนำทบทวนกระบวนการขายเพิ่มเติม ให้ฟังไฟล์เสียงจริง จนมั่นใจก่อนลงปฏิบัติงานจริง\n• ฝึกการนำเสนอผลิภัณฑ์ เนื่องจาก ตอน Role play ลูกค้าขอฟังรายละเอียดผลิตภัณฑ์เบื้องต้นก่อนตัดสินใจ สามารถนำเสนอได้บางส่วน แนะนำให้พัฒนาเพิ่ม หมั่นทบทวนอัตราดอกเบี้ย เงื่อนไขต่างๆ ให้แม่นยำ\n• เน้นย้ำเอกสารเบื้องต้นในการขอสินเชื่อ เงื่อนไขการ Refinance\n• เน้นย้ำระมัดระวังเรื่องการ Refer ไปสาขา หากลูกค้ายังไม่ตอบรับสินเชื่อ\n• ฝึกรับมือข้อโต้แย้งและการโน้มน้ามประโยชน์ที่ลูกค้าจะได้รับ เช่น หากใช้บริการสินเชื่อกับทางเงินติดล้อ จะช่วยแบ่งเบาลูกค้าได้แบบไหน\n• ฝึกสอบถาม 6 เพิ่ม ตอน Role Play ไม่ได้สอบถาม ทะเบียนรถ ที่ดิน และรถคันอื่นๆ\n• สินเชื่อเพื่อคนมีที่ดิน เน้นเรื่องการแจ้งเอกสารราคาประเมินจากกรมที่ดิน","feedbackBehav":"หมายเหตุ: (Goal Commission 30K ขึ้นไป)\n• ช่วงวันแรกคือค่อนข้างดื้อ ไม่ค่อยมีสมาธิและหลุดโฟกัสในการเรียนรู้\n• วันที่ 2 เป็นต้นมามีความตั้งใจ และมีส่วนร่วม ถาม-ตอบ มากขึ้น\n• มีนิสัยเป็นเด็กบ้าง ในการอบรม เทรนเนอร์ ต้องใช้ พลังงาน และจิตวิทยาเบื้องต้น ในการสอนสูงพอสมควร\n• หากมีความเชื่อใจไว้ใจมีวิธีการเข้าหาหรือพูดคุย ก็จะเชื่อฟังมากขึ้น\n• หากมีปัญหาจากที่บ้านมาจะส่งผลกระทบต่อการเรียนรู้ชัดเจน ไม่มีสมาธิทั้งตอนเรียนและตอนสอบ\n• ในการทำงานในช่วงแรกแนะนำให้ติดตามใกล้ชิด"},"CF306243":{"feedbackTrain":"• มีการสอบถามก่อนว่าลูกค้าสะดวกคุยสายไหม แนะนำให้ฝึกเพิ่มเติมเรื่อง การรับมือข้อโต้แย้ง\n• อธิบาย Product ค่อนข้างครบถ้วน รวมถึงอัตราดอกเบี้ย\n• น้ำเสียงจังหวะดี แต่ฟังแล้วจับได้เลยว่าตื่นเต้น เสียงสั่นชัดเจน เพราะมีเพื่อนคอยนั่งฟังอยู่ด้วยเยอะ\n• มีการนำเสนอโครงการรวมยอดหนี้ แจ้งอัตราดอกเบี้ย ชัดเจน\n• อย่าลืมสอบถาม ภาษี/พรบ และ 6 เพิ่ม ตอน Role Play ไม่ถาม ทะเบียนรถ เบอร์โทรและเบอร์สำรอง โฉนดที่ดิน","feedbackBehav":"หมายเหตุ: (Goal Commission 30K ขึ้นไป)\n• ช่วงวันแรกมีกำแพงเล็กๆ ไม่ค่อยเปิดใจ\n• วันที่ 2 เป็นต้นมา มีความตั้งใจเรียน มีส่วนร่วมในการตอบคำถามในระหว่างอบรม แต่เป็นคนที่ชอบกังวลไปก่อนเลยทำให้ไม่ค่อยมั่นใจในบางครั้ง\n• ไม่ชอบสังคม Toxic เพื่อนร่วมงาน บรรยากาศ มีผลต่อสภาพจิตใจและการทำงาน\n• จากการสังเกตในช่วงอบรม เป็นคนที่มีความสามารถมองเห็นพัฒนาการในทุกๆ วันที่อบรม\n• มีความเป็นตัวของตัวเองสูง\n• หากเนื้อหามีความซับซ้อนหรือเยอะมาก จะงงและหลุดโฟกัสและต้องใช้เวลา เป็นไปได้ให้ย่อยข้อมูลให้เลย จะสามารถเข้าใจเร็ว"},"CF306244":{"feedbackTrain":"• ให้ระวังการใช้ประโยค เช่น สนใจนำรถมาแลกเงินไหมคะ เป็นต้น อาจทำให้ลูกค้าเข้าใจผิด ว่าต้องนำตัวรถมาค้ำประกัน\n• แนะนำให้สอบถามความต้องการลูกค้าก่อนแจ้งราคาประเมินเบื้องต้น\n• รับมือข้อโต้แย้งได้เบื้องต้น Role Play ลูกค้าแจ้งว่าที่อื่นให้ดอกเบี้ยถูกกว่า สามารถแนะนำลูกค้าได้ว่าดอกเบี้ยเราเริ่มต้นที่ 12-24% ต่อปี เป็นแบบลดตอนลดดอก\n• มีการเสนอให้ลูกค้าลองนำรถเข้าสาขาเพื่อประเมินเพิ่มเติมดูก่อนได้ไม่มีค่าใช้จ่าย\n• ติดคำว่าสำเนาบัตรประชาชน และแนะนำให้ เน้นย้ำ เงื่อนไขและเอกสาร ของการ Refinance ให้แม่นยำ\n• แนะนำให้แจ้ง วัน และเวลา ให้ชัดเจน เช่น วันศุกร์ที่ 8 พฤษถาคม เวลา 13.00 น. เป็นต้น","feedbackBehav":"หมายเหตุ: (Goal Commission 30K ขึ้นไป)\n• ตั้งใจเรียน มีส่วนร่วมในการตอบคำถามในระหว่างอบรม\n• มีความมั่นใจในตัวเองค่อนข้างสูง มีกำแพงเล็กน้อย\n• เรียนรู้ได้ไวกว่าเพื่อนๆ มีความคุ้นชินเนื่องจากเคยมีประสบการณ์ด้านนี้มาบ้าง\n• มีพัฒนาการชัดเจน มีไหวพริบ"},"CF306245":{"feedbackTrain":"• ระวัง Script คำว่า เปลี่ยนรถเป็นเงินสด อาจทำให้ลูกค้าสับสนได้\n• ตอน Role Play ลูกค้าบอกสามารถขอเพิ่มเติมได้ไหมวงเงิน เพราะอยากได้สูงกว่าราคาประเมิน ไม่ถามความต้องการลูกค้าว่าต้องการใช้วงเงินประมาณเท่าไหร่ ไม่ถามลูกค้ามีรถคันอื่นไหม และไม่ถามโฉนดที่ดิน\n• เน้นย้ำการให้ข้อมูลอัตราดอกเบี้ยเป็นแบบลดต้นลดดอก\n• ไม่เสนอทางเลือกว่าอาจจะได้มากหรือน้อยขึ้นอยู่กับคุณสมบัติและสภาพรถของลูกค้า แนะนำให้นำรถเตรียมเอกสารประเมินราคาที่สาขาก่อนได้\n• ทบทวน เงื่อนไขของ รีไฟแนนซ์ เพิ่มเติม\n• เน้นย้ำ 6 เพิ่ม และ ประกันภัยรถยนต์","feedbackBehav":"• ตั้งใจเรียน ถาม-ตอบ มีส่วนร่วม\n• เรียนรู้ค่อนข้างช้า แต่ก็พยายามที่จะทำความเข้าใจตลอด\n• มีปัญหาด้านสุขภาพตอนนี้ ฟันหน้ามีปัญหา เลือดไหลตลอดเวลา ยังไม่รักษาเนื่องจากไม่มีเงินทำรากฟันเทียมที่มีราคาสูง กำลังอดทน เพื่อทำงานหากได้ค่าคอมก็จะนำไปรักษา\n• เป็นคนไม่ค่อยเปิดเผยความรู้สึกตัวเองเท่าไหร่ แต่ไม่ได้ปิดกั้นตัวเอง ไม่ได้มีกำแพง"},"CF306246":{"feedbackTrain":"• โทนเสียงดี แต่ไม่มีความมั่นใจ อาชีพลูกค้าแนะนำให้ถามตั้งแต่ต้นสาย\n• เพิ่มเติมเรื่องการปิดการขาย เช่น ตอน Role Play ลูกค้าอยากได้เงิน แต่ราคาประเมินรถไม่คลอบคลุมที่ต้องการ ลูกค้ามีโฉนด ราคาคลอบคลุมที่ลูกค้าต้องการ แต่ Refer แค่โฉนด สามารถแนะนำลูกค้าให้เตรียมเอกสารทั้งรถยนต์ และโฉนดเข้าสาขา เป็นต้น\n• ถาม กรรมสิทธิ์ที่ดิน แต่ไม่ถาม กรรมสิทธิ์รถ เน้นเรื่อง 6 เพิ่ม\n• แนะนำให้หมั่นทบทวนผลิตภัณฑ์และอัตราดอกเบี้ยเป็นประจำ โดยเฉพาะสินเชื่อเพื่อคนมีโฉนดที่ดิน เน้นย้ำถามจังหวัดของที่ดินลูกค้าก่อนส่งงานด้วย\n• แนะนำให้ ฟังไฟล์เสียงตัวอย่างเยอะๆ และย้ำเรื่อง Process การขาย ให้แม่นๆ ก่อนลงปฏิบัติงานจริง","feedbackBehav":"• ตั้งใจเรียน แต่ต้องเน้นย้ำ บ่อยๆ จะสามารถเข้าใจได้มากขึ้น\n• เป็นคนเงียบๆ ตอนเรียน แต่เวลาถามหรือขอความเห็นก็จะพูดเก่ง\n• ไม่ชอบสังคม Toxic บรรยากาศคนรอบข้างไม่ชอบพลังงาน ลบ มีผลต่อการทำงาน\n• มีความประหม่า ในบางครั้ง"},"CF306247":{"feedbackTrain":"• เน้นย้ำ 6 เพิ่ม ให้ครบถ้วน ตอน Role-Play ลืมถามป้ายทะเบียนรถยนต์, โฉนดที่ดิน, เบอร์โทร/เบอร์สำรอง\n• เน้นย้ำการแจ้ง Script BOT ให้ครบถ้วนกระบวนการ\n• แนะนำให้ทบทวนเอกสารในการขอสินเชื่อเบื้องต้น รวมถึงอัตราดอกเบี้ย ทั้ง M,C,T,L และ โครงการรวมยอดหนี้\n• แนะนำให้ฝึกการปิดการขายเพิ่มเติม","feedbackBehav":"• ตั้งใจเรียน ดูหน้าง่วงนอนมากๆ แบบจะหลับแต่ไม่หลับ พยายามข่มตาได้ดี\n• เพื่อนชอบชวนคุยตอนอบรม แต่ก็คอยห้ามเพื่อนเสมอ\n• Trainee เล่าว่า จะทำงานที่ไหนได้นานไหมขึ้นอยู่กับตัวเอง แค่อยากทำงานกับเพื่อนร่วมงานที่ดี และมีความสุข จะลาออกก็ต่อเมื่อ รู้สึกขี้เกียจมากๆ หรือหมดไฟ\n• ชอบเล่าประสบการณ์ชีวิตให้ฟัง เคยทำธุรกิจเองเคยใช้บริการขอสินเชื่อกับเงินติดล้อมาก่อน\n• มีทักษะเรียนรู้ไว แต่โดยรวมมีความเป็นตัวเองสูง แต่ก็รู้ว่าเวลาไหนควรเล่นไม่ควรเล่นมีกาละเทศะ"},"CF306285":{"feedbackTrain":"• Role-Play มีความละเอียดใส่ใจในการถามข้อมูลลูกค้า มักสอบถามความต้องการจากลูกค้าเสมอ\n• สามารถนำเสนอผลิตภัณฑ์ได้เข้าใจง่าย แจ้งอัตราดอกเบี้ยเบื้องต้นได้ชัดเจน\n• เพิ่มเติมเรื่อง หากลูกค้า Refinance ให้สอบถามชื่อบริษัท Finance ก่อนเสมอ\n• สามารถแจ้งเอกสารขอสินเชื่อเบื้องต้น ทั้งปลอดภาระและไม่ปลอดภาระได้\n• แนะนำให้เพิ่มเติม สอบถามประกันภัยรถยนต์ เพื่อเพิ่มโอกาสให้ตนเอง\n• แนะนำให้หมั่นทบทวน เงื่อนไขสินเชื่อต่างๆ โดยเฉพาะ สินเชื่อทะเบียนรถบรรทุก\n• แนะนำให้พัฒนาการนำเสนอผลประโยชน์ที่ลูกค้าจะได้รับ เช่น โครงการรวมยอดหนี้มีประโยชน์กับลูกค้าอย่างไร เป็นต้น","feedbackBehav":"• ตั้งใจเรียน มีส่วนร่วมในการตอบคำถามในระหว่างอบรม\n• มีความมั่นใจในตัวเองสูง และมีเป้าหมายชัดเจน อยากได้ค่าคอม 100K บาท\n• เปิดใจรับฟังความคิดเห็น แต่อาจจะมีกำแพงบางๆ อยู่บ้าง\n• มีความเป็นตัวของตัวเองสูง หากไม่ชอบอะไรมักจะแสดงออกทางสีหน้า\n• ไม่ชอบความไม่ยุติธรรม"},"CF306286":{"feedbackTrain":"• น้ำเสียงดี แต่ Role-Play เบื้องต้น ยังไม่สามารถจัดลำดับการขายได้\n• มีความไม่เข้าใจในตัวผลิตภัณฑ์ ทั้งปลอดภาระและยังไม่ปลอดภาระ และยังคงสับสนกับเงื่อนไขต่างๆ ไม่สามารถแจ้งเอกสารการขอสินเชื่อเบื้องต้นได้ แนะนำให้ทบทวนใหม่ ทั้งอัตราดอกเบี้ยของแต่ละผลิตภัณฑ์ และเอกสารต่างๆ โดยเฉพาะสินเชื่อเพื่อคนมีที่ดิน\n• ตอน Role-Play ยังไม่กล้าปิดการขาย ไม่ฟังความต้องการของลูกค้า มี Dead Air ไม่ปิดการขาย มีการติดชะงักระยะใหญ่ๆ จึงเกริ่นช่วยบ้างก็สามารถ พอไปต่อได้\n• หากลงปฏิบัติงานจริงให้ระมัดระวังเสียงในหัวจะดังออกมาในสาย\n• แนะนำว่าควรฟังตัวอย่างการขายเยอะๆ และฝึก Role-Play เพิ่มเติม ให้มั่นใจจริงๆ ทั้ง Product และ Process ก่อนลงปฏิบัติงานจริง เพื่อลดความผิดพลาดการให้ข้อมูลผิดแก่ลูกค้า","feedbackBehav":"• ตั้งใจเรียนและมีความพยายามมากๆ ในการตอบคำถาม\n• มีความไม่มั่นใจมาก ในช่วงแรกไม่กล้าบอกว่ายังไม่เข้าใจตรงไหน เทรนเนอร์พยายามเปิดใจ ก็ยอมแจ้งตรงๆ ว่า ไม่เข้าใจ\n• เป็นคนที่เรียนรู้ค่อนข้างช้า มีการฝึกเยอะพอสมควร อาจด้วยพื้นฐานจากการทำงานที่ผ่านมาไม่เคยขายมาก่อน แต่มีความพยายามอย่างมากในการทำความเข้าใจ และ ชอบให้พูดตรงๆ มากกว่าไปพูดลับหลัง\n• เทรนเนอร์คิดเห็นว่าอาจจะต้อง Re-Train อีกรอบ หากหัวหน้าทีมมีความคิดเห็นว่าอย่างไรสามารถแจ้งเทรนนิ่งได้ตลอด"},"CF306303":{"feedbackTrain":"• Role-Play มีความละเอียดใส่ใจในการถามข้อมูลลูกค้า มักสอบถามความต้องการจากลูกค้าเสมอ\n• สามารถนำเสนอผลิตภัณฑ์ได้เข้าใจง่าย แจ้งอัตราดอกเบี้ยเบื้องต้นได้ชัดเจน\n• เพิ่มเติมเรื่อง หากลูกค้า Refinance ให้สอบถามชื่อบริษัท Finance ก่อนเสมอ\n• สามารถแจ้งเอกสารขอสินเชื่อเบื้องต้น ทั้งปลอดภาระและไม่ปลอดภาระได้\n• สามารถตอบคำถามแคมเปญ Back To School และ ลดดอกเบี้ย Refinance ได้\n• ป้ายทะเบียนรถ เน้นย้ำให้สอบถามจังหวัดของป้ายทะเบียนให้ครบถ้วน\n• น้ำเสียงดี จังหวะในการขายดี สามารถเรียงลำดับขั้นตอนการขายได้ค่อนข้างดี\n• แนะนำให้หมั่นทบทวน เงื่อนไขและอัตราดอกเบี้ยอย่างสม่ำเสมอ","feedbackBehav":"• ตั้งใจเรียน จดตลอด มีส่วนร่วมในการตอบคำถามในระหว่างอบรม\n• เรียนรู้ไว หากไม่เข้าใจในส่วนไหน เทรนเนอร์อธิบายเพิ่มเติมให้ ก็สามารถเข้าใจได้ง่าย และพอเวลาผ่านไป ลองถามซ้ำ ก็สามารถตอบได้\n• วางเป้าหมายค่าคอมเบื้องต้นไว้ที่ 20,000 บาท\n• เป็นคุณแม่ลูกอ่อน แรกๆ หากยังไม่คุ้นเคยก็ไม่ค่อยเปิดใจ พอคุ้นเคยก็จะแชร์เรื่องส่วนตัวหลายๆ เรื่องให้ฟัง\n• มี Potential สามารถพัฒนาได้"},"CF306304":{"feedbackTrain":"• สามารถนำเสนอผลิตภัณฑ์เบื้องต้นได้ แต่ยังขาดความมั่นใจในการขาย ส่วนนี้แนะนำให้ Role-Play เยอะๆ เพื่อสร้างความมั่นใจมากยิ่งขึ้น\n• เพิ่มเติมเรื่องการรับมือข้อโต้แย้งเบื้องต้น เช่น ดอกเบี้ยลดต้นลดดอกและรวมยอดหนี้จะสามารถช่วยแบ่งเบาภาระให้ลูกค้าได้อย่างไร\n• แนะนำให้ทบทวนเรื่องเอกสารเบื้องต้นในการขอสินเชื่อ ทั้งปลอดภาระ, ไม่ปลอดภาระ, รวมยอดหนี้, โฉนดที่ดิน ให้แม่นยำมากขึ้น ก่อนลงงานจริง\n• เรื่องการหาสาขาให้ลูกค้า หากลูกค้าอยู่ต่างจังหวัด เพิ่มเติมถาม ตำบล อำเภอ ให้ชัดเจน เพื่อความแม่นยำของสาขาที่ลูกค้าสะดวกมากที่สุด\n• เน้นย้ำเรื่อง 6 เพิ่ม + 1 ประกันภัยรถยนต์ โดยเฉพาะกรรมสิทธิ์รถ ทะเบียนรถ โฉนดที่ดิน เบอร์อื่นๆ\n• ฝากทบทวน แคมเปญต่างๆ ของ บริษัท เพื่อนำไปเป็นจุดขายเพิ่มเติม","feedbackBehav":"• มีความตั้งใจ และมีความพยายามสูง คอยพยายามจดเนื้อหาสำคัญเสมอ\n• ขาดความมั่นใจ เนื่องจากทำธุรกิจส่วนตัว ไม่ได้ทำงานประจำมานาน\n• เปิดใจรับฟังความคิดเห็น แต่ต้องคอยพูดให้กำลังใจเป็นระยะ จึงจะเกิดแรงฮึด\n• ถึงไม่มั่นใจแต่มีความกล้าที่จะฝึกขาย เวลาถามว่าติดตรงไหนก็กล้าบอก\n• เหมือนจะเหงา เพราะบอกว่า ไม่ค่อยมีเพื่อนคุยด้วย\n• เรียนรู้ได้ช้าถึงปานกลาง อาจต้องใช้ระยะเวลาทำความเข้าใจ\n• หากติดขัดสามารถส่งมา Role-Play เพิ่มเติมได้เสมอ"},"CF306305":{"feedbackTrain":"• การเปิดสายเน้นย้ำให้แจ้งจุดประสงค์ในการโทรหาลูกค้าเสมอ\n• สามารถแจ้งข้อมูลผลิตภัณฑ์และอัตราดอกเบี้ยเบื้องต้นได้ แนะนำให้ทบทวน แคมเปญ ของบริษัทอย่างสม่ำเสมอ เช่น Back To School , ลดดอกเบี้ย Refinance และ ดอกเบี้ยพิเศษรถบรรทุก\n• การนำเสนอยังแข็งๆ แนะนำให้เพิ่ม Dynamic ของโทนเสียงจะดีขึ้นมาก\n• สามารถแจ้งเอกสารการขอสินเชื่อเบื้องต้นได้ ฝากเพิ่มเติมคือ สอบถาม ภาษี/พรบ และ ป้ายทะเบียนรถ รวมถึงจังหวัด\n• เน้นย้ำ การฝากข้อมูลและช่องทางติดต่อกลับ แจ้งให้ลูกค้าทราบเสมอ\n• เพิ่มเติมเรื่องวันนัดหมาย แนะนำให้ แจ้ง วัน และเวลา ให้ชัดเจน เช่น วัน อังคาร ที่ 16 มิถุนายน เวลา 10.00 น. เป็นต้น","feedbackBehav":"• ตั้งใจเรียน มีส่วนร่วมในการตอบคำถามในระหว่างอบรม\n• จดเนื้อหาการเรียนอยู่ตลอด จดเยอะมาก เปิดใจรับฟังความคิดเห็น\n• อยากเป็นนักกฎหมาย ตอนนี้กำลังเรียนและมีแผนที่จะสอบเนติในอนาคต\n• แม้ว่าจะเป็นคนขี้อาย แต่ก็กล้าถามในสิ่งที่ไม่เข้าใจ และกล้าที่จะ Role-Play\n• ถึงแม้ว่าจะไม่มีประสบการณ์ในการขายมาก่อน แต่มีทักษะการเรียนรู้ได้ค่อนข้างไว หากมีเวลาในการฝึกฝนมากกว่านี้ สามารถเห็นพัฒนาการและสามารถพัฒนาต่อไปได้"},"CF306326":{"feedbackTrain":"• เปิดตัวครบถ้วนน้ำเสียงและโทนเสียงดี\n• หมั่นทบทวนเอกสารในการขอสินเชื่อเบื้องต้น โดยเฉพาะ เอกสารที่ใช้ประกอบการ รีไฟแนนซ์ เอกสารรวมยอดหนี้\n• อาจจะยังสับสนเรื่องอัตราดอกเบี้ย แนะนำให้หมั่นทบทวนเพิ่มเติม\n• แนะนำให้ฝึกฝนการรับมือข้อโต้แย้งเพิ่มเติม เช่น หากลูกค้าถามว่าโครงการรวมยอดหนี้ดีกว่าวางเล่มปกติอย่างไร\n• แจ้ง 6 เพิ่ม ครบถ้วนดี แต่ฝากเพิ่มการนำเสนอประกันภัยรถยนต์","feedbackBehav":"• มีส่วนร่วมในการตอบคำถามในระหว่างอบรม แรกๆ อาจจะดื้อ แต่พอเริ่มสนิทแล้ว น้องจะเชื่อฟัง และตั้งใจเรียนมากขึ้น\n• หากได้ทำกิจกรรม ที่ชอบจะกระตุ้นให้มีความกระตือรือร้น หากตัดความดื้อออกไป เห็นถึงความสามารถที่จะพัฒนามากขึ้นได้\n• มีความคาดหวังค่าคอม 80K บาท\n• น้องแจ้งว่าไม่เคยทำงาน Telesales มา สำหรับคนไม่เคยมีประสบการณ์มาก่อน ถือว่าสามารถเรียนรู้ได้ค่อนข้างไว"},"CF306327":{"feedbackTrain":"• การนำเสนอยังดูไม่เป็นธรรมชาติ พูดค่อนข้างเร็วและรัว แนะนำให้ค่อยๆ ปรับ ให้ช้าลง นิดหน่อย จะดีขึ้น\n• หมั่นฝึกฝนเพิ่มเติมในเรื่องของการตอบข้อโต้แย้ง เช่น ลดดอกเบี้ยให้ได้ไหม หากผ่อนชำระตรง\n• ทบทวนเอกสารในการขอสินเชื่อเบื้องต้น เช่น เอกสารประกอบการขอสินเชื่อประเภท Refinance เอกสารราคาประเมินจากกรมที่ดิน เป็นต้น\n• แนะนำให้พยายามฝึกถาม 6 เพิ่ม ให้ครบ โดยเฉพาะเลขทะเบียนรถ รวมถึงจังหวัดป้ายทะเบียนรถ รถคันอื่นๆ และ โฉนดที่ดิน รวมถึง ประกันภัยรถยนต์\n• แนะนำให้ฝึก Role-Play บ่อยๆ","feedbackBehav":"• ในเวลาเรียน มีความตั้งใจ และมีความร่วมมือในการตอบคำถาม\n• มีความง่วงนอนตาลอย ๆ แต่ก็พยายามตั้งใจเรียน\n• คาดหวังค่าคอมประมาณ 50K บาท\n• มีความตรงต่อเวลาเสมอ\n• บุคลิก เป็นคนตรงๆ หากได้คุยในหัวข้อที่สนใจ จะพูดเยอะ หากเรื่องที่จริงจังจะค่อนข้างเงียบ"},"CF306328":{"feedbackTrain":"• การเปิดตัวและการนำเสนอ ดี น้ำเสียงและจังหวะการขายอยู่ในเกณฑ์ที่ดี\n• สามารถมีไหวพริบในการรับมือข้อโต้แย้งได้ค่อนข้างดี\n• สามารถแจ้งเอกสารในการขอสินเชื่อเบื้องต้นได้ค่อนข้างดี เพิ่มเติมแจ้งให้ลูกค้านำรถคันที่จะขอสินเชื่อเข้าไปที่สาขาด้วย\n• ถาม 6 เพิ่มค่อนข้างครบถ้วน แนะนำให้สอบถามประกันภัยรถยนต์ลูกค้าเพิ่มเติม","feedbackBehav":"• ตั้งใจเรียน จดตลอด มีส่วนร่วมในการตอบคำถามในระหว่างอบรม\n• ในส่วนบุคลิกภายนอก จากการสังเกตในระหว่างอบรม ในช่วงแรกถ้าไม่เข้าใจจริงๆ จะมองว่า จะเป็นคนพูดจาห้วน ๆ ตรงๆ แต่จริงๆ แล้วน่ารัก เป็นคนตลก และให้ความร่วมมือดี\n• มีไหวพริบเรียนรู้ค่อนข้างไว\n• ต้องการค่าคอมประมาณ 60K บาท"},"CF306329":{"feedbackTrain":"• จังหวะและน้ำเสียง มีความโมโนโทน แนะนำให้ปรับจังหวะ จะดีขึ้น\n• การนำเสนออาจจะมีตะกุกตะกักบ้าง เนื่องด้วยยังไม่มั่นใจในข้อมูลผลิตภัณฑ์ ชอบคิดไปก่อนเลยทำให้เกิดความกังวล แนะนำให้ฝึก Role-Play บ่อยๆ เพื่อลดอาการตื่นเต้น\n• แนะนำให้ฝึกฝนการตอบข้อโต้แย้งเบื้องต้น เช่น ลดต้นลดดอกคืออะไร\n• หมั่นทบทวนเอกสารประกอบการขอสินเชื่อเพิ่มเติม เช่น เอกสารรวมยอดหนี้ เอกสารการขอสินเชื่อที่ดิน และเอกสารการรีไฟแนนซ์\n• แนะนำให้ฝึกพูด 6 เพิ่ม โดยเฉพาะทะเบียนรถ พร้อมจังหวัด","feedbackBehav":"• ตั้งใจเรียน จดตลอด มีส่วนร่วมในการตอบคำถามในระหว่างอบรม\n• มีความเขินตอน Role-Play แต่โชคดีที่มีพี่ๆ ร่วมอบรมอีก 3 คน ช่วยให้ผ่อนคลาย ทำให้กล้าพูดและตอบคำถามมากขึ้น\n• ยังขาดความมั่นใจในตัวเองเพราะ ไม่เคยผ่านการทำงานด้านนี้มาก่อน\n• เป็นเด็กที่เส้นตื้น พูดอะไรก็ขำแบบจริงจัง\n• มีความคาดหวังค่าคอมมิชชั่น 40K บาท\n• พอให้ฝึก Role-Play หลายๆ รอบก็ทำให้มีความมั่นใจมากขึ้น"},"CF306336":{"feedbackTrain":"• มีจังหวะการพูดที่ ค่อนข้างดี หากปรับโทนเสียง ให้มีสูงต่ำจะน่าฟังมากขึ้น\n• สามารถอธิบายประโยชน์ของรวมยอดหนี้ได้ แต่เน้นย้ำเรื่องอัตราดอกเบี้ย หากไม่มั่นใจ อย่าเพิ่งแจ้งลูกค้า ให้ตรวจสอบข้อมูลให้ถูกต้องก่อนทำการแจ้งทุกครั้ง แนะนำให้หมั่นทบทวนอัตราดอกเบี้ย อย่างสม่ำเสมอ\n• หมั่นทบทวนเอกสารในการขอสินเชื่อเบื้องต้น โดยเฉพาะเอกสารแสดงรายได้ของแต่ละอาชีพ และ เอกสารที่ใช้สำหรับเคส Refinance\n• การแนะนำสาขา หากลูกค้าอยู่ ต่างจังหวัด แนะนำให้สอบถาม ตำบล อำเภอ เพื่อหาสาขาที่ใกล้ลูกค้าที่สุดเพื่อความสะดวก\n• เน้นย้ำในการสอบถาม 6 เพิ่ม ,ประกันภัยรถยนต์ เพื่อเพิ่มโอกาสในการปิดการขาย","feedbackBehav":"• มีความตั้งใจในการเรียน แรกๆ อาจจะดู เงียบๆ แต่พอเริ่มสนิทก็มีการพูดคุยมากขึ้น เป็นกันเอง เล่นมุกฝืดนิดหน่อย\n• มีประสบการณ์ในการทำงาน Telesales ในสายประกันมา มีสกิลในการพูดคุยกับลูกค้า และกล้าที่จะ Role-Play ไม่ค่อยเขินมาก แค่ตื่นเต้นเล็กน้อย\n• คาดหวังค่าคอม ประมาณ 30K-50K บาท\n• ค่าคอมไม่ได้อย่างที่คาดหวังมีผลต่อการทำงาน และการตัดสินใจ\n• สามารถพัฒนาได้อีก หากได้รับการฝึกฝนอย่างสม่ำเสมอ"},"CF306337":{"feedbackTrain":"• จังหวะการพูด และน้ำเสียง ฟังแล้วมีความน่าเชื่อถือ\n• อย่าลืมขอบันทึกเสียงในการสนทนา ทุกครั้ง\n• แนะนำให้ทบทวน เอกสารในการขอสินเชื่อเบื้องต้นให้แม่นยำ และแนะนำให้ลูกค้านำรถที่จะขอสินเชื่อ นำเข้าไปด้วย\n• แนะนำให้หมั่นทบทวน อัตราดอกเบี้ยของผลิตภัณฑ์ อยู่เรื่อย ๆ ทั้งอัตราดอกเบี้ยลดต้นลดดอกต่อปี และ อัตราดอกเบี้ยเทียบเคียงแบบคงที่ต่อเดือน\n• หมั่นทบทวนเงื่อนไขผลิตภัณฑ์ต่างๆ อย่างสม่ำเสมอ","feedbackBehav":"• ตั้งใจเรียน แต่บางครั้งก็ติดเม้าในระหว่างเรียนบ้างเล็กน้อย แต่ก็เป็นสีสัน ทำให้เพื่อนๆ ไม่เครียด\n• ชอบดูดวงให้เพื่อนๆ ในห้องอบรม แต่ในเวลาพัก เพื่อนบอกดูแม่นมาก\n• ดูภายนอกดูเป็นคนพูดเก่ง แต่จากการสังเกต อาจจะมีกำแพงเล็กๆ และมีความมั่นใจบางอย่างที่สูงนิดหน่อย\n• เวลาไม่เข้าใจก็กล้าถาม เวลาเทรนเนอร์ถาม กล้าตอบ มีส่วนร่วมในการเรียนมาก\n• สามารถมองเห็นพัฒนาการ สามารถ พัฒนาได้อีก\n• คาดหวังค่าคอมประมาณ 40K-50K บาท"},"CF306364":{"feedbackTrain":"• น้ำเสียงจังหวะ ค่อนข้างโอเค แนะนำให้สอบถามอาชีพลูกค้าตั้งแต่ เนิ่น ๆ เพื่อประเมินลูกค้าเบื้องต้นและเพื่อการแจ้งเอกสารแสดงรายได้ ให้ลูกค้าทราบเบื้องต้นได้\n• ทบทวนอัตราดอกเบี้ยของผลิตภัณฑ์ โดยเฉพาะรวมยอดหนี้ และเอกสารในการขอสินเชื่อเบื้องต้น ให้แม่นยำก่อนลงขายจริง\n• มีไหวพริบในการแก้ข้อโต้แย้งเบื้องต้นได้ เช่น วงเงินที่ลูกค้าต้องการไม่คลอบคลุม มีการสอบถามลูกค้ามีรถคันอื่นหรือโฉนดที่ดิน เพื่อแนะนำเพิ่มเติมได้\n• หมั่นฝึกการพูด ฝากช่องทางติดต่อกลับให้ลูกค้าทราบก่อนวางสาย\n• แนะนำให้นัดหมายวันและเวลาลูกค้าไม่พูดเชิงบังคับ เช่น ลูกค้าเข้าพรุ่งนี้เลยนะครับ 10.00 น. เป็นลูกค้าสะดวกพรุ่งนี้ไหมครับ 10.00 น แทน เป็นต้น","feedbackBehav":"• มีความตั้งใจเรียน มีส่วนร่วมในการตอบคำถาม และถามคำถาม\n• กล้าแสดงออก มีความมั่นใจในตัวเอง ถึงแม้ว่าจะตื่นเต้น แต่ก็ไม่ Dead Air มีความพยายาม แต่ให้ระวังคำพูดที่ติดมาจากตอนเป็น Collection\n• เจ้าตัวแจ้งว่า ไม่ได้หยิ่ง ถ้าไม่สนิทจะไม่ทักใครก่อน ถ้าอยากคุยก็สามารถทักก่อนได้เลย\n• คาดหวังค่าคอม 30K บาทขึ้นไป เป็นคนใช้เงินเยอะหาก รายได้ไม่ตอบโจทย์อาจจะพิจารณา เพิ่มเติม\n• อาจจะดูดื้อ แต่สามารถเห็นพัฒนาการ"},"CF306365":{"feedbackTrain":"• น้ำเสียงน่าฟัง โทรเสียงดี ระมัดระวังการลืมแจ้ง นามสกุล ตนเอง\n• การถามอาชีพลูกค้า หากลูกค้าแจ้งว่าทำอาชีพอิสระทั่วไป แนะนำให้สอบถามลูกค้าเพิ่มเติมว่า ประเภทไหน เช่น ร้านกาแฟ รับจ้างถ่ายภาพ เป็นต้น\n• แนะนำให้ Role-Play เพิ่ม และ ทบทวนเอกสารขอสินเชื่อเบื้องต้น และ อัตราดอกเบี้ยของทุกผลิตภัณฑ์ ให้แม่นยำก่อนขายจริง\n• 6 เพิ่ม และประกันภัยรถยนต์ หมั่นฝึกพูดบ่อยๆ โดยเฉพาะ รถคันอื่น โฉนดที่ดิน\n• Scrip RL ของ BOT แนะนำให้พูดให้ครบตรงตามสคริปต์\n• ในช่วงแรก ฝึกเรียงลำดับขั้นตอนตามพื้นฐานให้คล่อง จะทำให้ไม่สับสนว่าพูดหรือสอบถามอะไรไปแล้วบ้าง","feedbackBehav":"• มีความตั้งใจเรียน แต่ขาดความมั่นใจในตัวเองเล็กน้อย\n• อาจจะเรียนรู้ช้าบ้าง แต่เห็นถึงความตั้งใจ และพยายามทำให้ดีขึ้นในทุกๆ ครั้ง\n• คาดหวังค่าคอมประมาณ 30K บาท ขึ้นไป\n• หากหมั่นฝึกฝน Role-Play บ่อยๆ สามารถพัฒนา ได้\n• หากเจอสภาวะตื่นเต้นมากๆ จะมีความกดดันตัวเอง ทำให้สติอาจจะหลุดได้ง่าย สามารถพูดจาแบบใจเย็นๆ กับน้องได้ น้องก็จะผ่อนคลายและพยายามทำความเข้าใจเสมอ"},"CF306366":{"feedbackTrain":"• มีการสอบถามอาชีพลูกค้า ตั้งแต่เนิ่น ๆ ตาม ขั้นตอนการขายได้ค่อนข้างโอเค\n• ปกติน้ำเสียง จะ แข็งๆ แต่พอลอง Role-Play สามารถปรับจังหวะน้ำเสียงได้ค่อนข้างดี\n• เพิ่มเติมฝึกการรับมือข้อโต้แย้งเบื้องต้น และการแนะนำประโยชน์ รวมยอดหนี้ จะสามารถช่วยลูกค้าได้อย่างไร\n• เพิ่มเติมทบทวนเอกสารประกอบการขอสินเชื่อเบื้องต้น ทั้งจำนำและรีไฟแนนซ์ โครงการรวมยอดหนี้ และที่ดิน ให้แม่นยำ\n• แนะนำให้ระบุวันเวลานัดหมาย ให้ชัดเจน เช่น วันจันทร์ ที่ 13 กค เวลา 9.00 น\n• กรณีรีไฟแนนซ์ เน้นเรื่อง การสอบถาม บริษัท ไฟแนนซ์เสมอ เพื่อป้องกัน ไม่เข้าเงื่อนไข","feedbackBehav":"• มีความตั้งใจเรียน แต่อาจจะยังไม่ค่อยกล้าตอบ กล้าถาม ขี้อาย\n• ในช่วงแรกคือเครียดมาก ต้องค่อยๆ สอน ค่อยๆ พูด เวลาเครียด แสดงออกทางสีหน้าชัดเจน โดยเฉพาะตอน Role-Play กดดันตัวเองมาก\n• มีความพยายามและตั้งใจ มีการไปซ้อมกับเพื่อนในวันหยุด ก่อนรับการประเมิน เห็นถึงพัฒนาการที่ดี เกินความคาดหมายของเทรนเนอร์ เนื่องจาก ไม่เคยมีประสบการณ์การขายทางโทรศัพท์มาก่อน แต่สามารถทำได้ค่อนข้างดี\n• คาดหวังค่าคอม 30K บาม ขึ้นไป\n• หากหมั่นฝึกฝนเรื่อย ๆ สามารถพัฒนาได้อีก"},"CF306367":{"feedbackTrain":"• น้ำเสียงจังหวะการพูด ค่อนข้างโอเค\n• หมั่นฝึกฝนการรับมือข้อโต้แย้ง และการชี้ประโยชน์ในการทำสินเชื่อกับทางเงินติดล้อ เช่น ลดต้นลดดอก และมีโปรอะไรบ้าง\n• แนะนำให้ทบทวน อัตราดอกเบี้ยเบื้องต้นของผลิตภัณฑ์ และเอกสารการขอสินเชื่อเบื้องต้นให้แม่นยำ โดยเฉพาะเอกสารของโครงการรวมยอดหนี้ เป็นต้น\n• ฝากติดตามและคอย Update โปรโมชั่นต่างๆ ของทางบริษัท เพื่อเพิ่มยอดขายให้ตนเอง","feedbackBehav":"• มีความตั้งใจเรียนมาก จดตลอดเวลา จดเยอะ\n• สอบถามเสมอเวลาไม่เข้าใจ หากค่อยๆ อธิบาย ก็จะสามารถทำความเข้าใจได้\n• มีความพยายามสูง ด้วยไม่มีประสบการณ์การ Telesales มาก่อน\n• ทำได้ดีขึ้นเรื่อย ๆ เกินความคาดหมายของเทรนเนอร์\n• ก่อนการประเมินมีการซ้อมกับเพื่อนมา มีการทบทวนตลอด\n• ในช่วงแรกประหม่า และเครียด  แต่พอได้พูดฝึก ซ้ำๆ ก็สามารถผ่อนคลายและพูดได้ Role-Play ได้\n• คาดหวังค่าคอมมิชชั่น ประมาณ 30K-50K บาท"},"CF306373":{"feedbackTrain":"• แนะนำให้ มี Check List เรียงลำดับขั้นตอนในการขาย เพื่อกัน การลืมแจ้งหรือถามข้อมูลสำคัญจากลูกค้า\n• สามารถตอบคำถาม ความแตกต่าง ระหว่างรีไฟแนนซ์ ของรวมยอดหนี้ กับรีไฟแนนซ์ ปกติ ได้ แต่แนะนำเพิ่มเติมให้สอบถาม ว่าลูกค้ามีหนี้อะไรบ้าง เพื่อจะได้เสนอแนะเพิ่มโอกาสเป็นการส่งรวมยอดหนี้\n• ทบทวนเอกสารการขอสินเชื่อเบื้องต้นให้แม่นยำ โดยเฉพาะ เอกสาร Refinance\n• เน้นย้ำ แจ้งลูกค้าว่าจะมีเจ้าหน้าที่สาขาติดต่อก่อนเข้าสาขา และ การฝากช่องทางติดต่อกลับ และ RL แจ้งให้ตรงตาม ที่กำหนด\n• มีไหวพริบในการสอบถามทะเบียนรถทุกคัน แต่อย่าลืมถามจังหวัดของป้ายทะเบียนรถ และ เพิ่มเติม สอบถามประกันภัยรถยนต์","feedbackBehav":"• มีความตั้งใจในการอบรม ตรงต่อเวลาเสมอ\n• ไม่ค่อยมีคำถาม จดเยอะ อาจจะต้องฝึกจดแต่ใจความสำคัญ พอให้มาสรุปบทเรียนตอนสุดท้าย งง ว่าตัวเองจดอะไรบ้าง\n• พูดเก่ง แต่ในบางครั้งก็พูดออกมาโดยไม่ได้ตั้งใจ เช่น ตอนสอบ Product ได้เต็ม แล้วเพื่อนร่วมคลาส ไม่ผ่าน ก็เผลอพูดว่า”ไม่ผ่านเหรอ ข้อนี้ก็ผิดเหรอ จริงเหรอ” เป็นต้น แต่พอรู้ตัวก็รีบเปลี่ยนคำพูดให้ซอร์ฟลง\n• มีความคาดหวังค่าคอม 30K บาท ก่อนออกจากงานเก่าเจอคำดูถูกมากมาย เลยอยากจะทำได้ตามที่คาดหวัง"},"CF306374":{"feedbackTrain":"• ช่วงแนะนำตัว เน้นย้ำเรื่องการแจ้งนามสกุลของพนักงานทุกครั้ง\n• เน้นย้ำเรื่องการสอบถาม อาชีพลูกค้าทุกครั้ง เพื่อคงคุณภาพของการส่งงาน\n• หมั่นทบทวนอัตราดอกเบี้ยของผลิตภัณฑ์ให้สม่ำเสมอ\n• หมั่นทบทวนเอกสารการขอสินเชื่อเบื้องต้นอย่างสม่ำเสมอ โดยเฉพาะเอกสารในการขอสินเชื่อโฉนดที่ดิน ให้แจ้งเอกสารให้ลูกค้าทราบทุกครั้งก่อนส่งงาน และ แจ้ง RL แจ้งให้ตรงตาม ที่กำหนด\n• สามารถแนะนำให้ลูกค้าไปขอเอกสารใบประเมินราคาจากกรมที่ดิน และก่อนนัดหมายมีการเผื่อ เวลาให้ลูกค้า ได้ดี\n• แจ้งลูกค้าก่อนส่งงานทุกครั้งเรื่อง จะมีเจ้าหน้าที่สาขาโทรหาก่อนเข้าสาขา และฝากช่องทางติดต่อกลับ และสอบถามประกันภัยรถยนต์เพื่อเพิ่มโอกาส","feedbackBehav":"• ไม่ค่อยมีคำถาม จดตลอดในขณะอบรม แต่แนะนำให้ฝึกจดแต่ใจความสำคัญ พอให้มาสรุปบทเรียนตอนสุดท้าย งง ว่าตัวเองจดอะไรบ้าง\n• ขาดความมั่นใจเล็กน้อยดูมีความกังวล แต่ไม่ได้พูดออกมา\n• ในการเรียนรู้ ต้องอธิบายให้ละเอียด ขยายความเพิ่มเติม ถึงจะเข้าใจจริงๆ ต้องใช้ความใจเย็นในการสอน อาจจะเข้าใจยากนิดหน่อย แต่มีพัฒนาการ\n• น้องเหมือนมีความกังวลมาก ในเรื่องตื่นเช้า และการเดินทาง ในส่วนนี้ได้ยินน้องคุยกับเพื่อนร่วมอบรม แต่ไม่ได้บอกเทรนเนอร์โดยตรง\n• คาดหวังค่าคอมมิชชั่น ประมาณ 18K บาท"}};
+// per-employee editable state (seeded from PPTX_FEEDBACK, then editable in memory)
+const store = {};
+function st(id){
+  if(!store[id]){
+    const seed=PPTX_FEEDBACK[id]||{};
+    const emp=DATA.find(e=>e.empId===id)||{};
+    const seedReason=(emp.reason&&emp.reason!=='Fast Track')?emp.reason:'';
+    store[id]={feedbackTrain:seed.feedbackTrain||'',feedbackBehav:seed.feedbackBehav||'',behavTags:{},ratings:{},resignReason:seedReason};
+  }
+  return store[id];
+}
+
+let current=null, filter='all', query='';
+
+function num(v){ const n=parseFloat(v); return isNaN(n)?null:n; }
+function scoreClass(v){ const n=num(v); if(n===null)return'sc-none'; if(n>=9)return'sc-pass'; if(n>=8)return'sc-retest'; return'sc-fail'; }
+function bestProdScore(emp,p){ let vals=p.cols.map(c=>num(emp[c])).filter(x=>x!==null); return vals.length?Math.max(...vals):null; }
+function rpPct(emp){ const n=num(emp.RP); return n===null?null:Math.round(n*100); }
+
+// RP sub-scores from real data (emp.rp holds fractions 0-1 per dimension)
+function rpBreakdown(emp){
+  if(!emp.rp) return null;
+  const vals=RP_DIMS.map(d=>emp.rp[d.k]);
+  if(vals.every(v=>v===null||v===undefined)) return null;
+  return RP_DIMS.map(d=>{
+    const raw=emp.rp[d.k];
+    return {...d, val:(raw===null||raw===undefined)?null:Math.round(raw*100)};
+  });
+}
+
+// build RP coaching: sorted weakest-first, each with band + recommendations
+function rpCoaching(emp){
+  const bd=rpBreakdown(emp); if(!bd)return null;
+  const scored=bd.filter(d=>d.val!==null);
+  if(!scored.length)return null;
+  const items=scored.map(d=>{const band=rpBand(d.val);return {k:d.k,label:d.label,val:d.val,band,recs:RP_COACH[d.k][band]};})
+                .sort((a,b)=>a.val-b.val);
+  const focus=items.filter(x=>x.band!=='high');
+  const priority=focus[0]||items[0];
+  // overall summary line
+  let summary;
+  const avg=Math.round(items.reduce((s,x)=>s+x.val,0)/items.length);
+  if(focus.length===0) summary=`ผลรวม Role Play อยู่ในระดับดีทุกทักษะ (เฉลี่ย ${avg}%) พร้อมขึ้นปฏิบัติงานจริง ควรมอบหมายเคสจริงเพื่อรักษาความต่อเนื่อง`;
+  else if(focus.length<=2) summary=`ภาพรวม Role Play ใช้ได้ (เฉลี่ย ${avg}%) โดยจุดที่ควรเน้นฝึกเสริมคือ ${focus.map(x=>x.label.split(' /')[0]).join(' และ ')}`;
+  else summary=`ภาพรวม Role Play เฉลี่ย ${avg}% ยังต้องพัฒนาหลายทักษะ แนะนำจัดตารางติวเสริมและ role play ซ้ำเป็นรายบุคคล โดยเริ่มจากทักษะที่อ่อนที่สุดก่อน`;
+  return {items,focus,priority,avg,summary};
+}
+
+function buildRoster(){
+  const el=document.getElementById('roster');
+  const list=DATA.filter(e=>{
+    if(filter!=='all'&&e.status!==filter)return false;
+    if(query){const q=query.toLowerCase();const hay=[e.firstTh,e.lastTh,e.firstEn,e.lastEn,e.nick,e.empId].join(' ').toLowerCase();if(!hay.includes(q))return false;}
+    return true;
+  });
+  document.getElementById('rostercount').textContent=list.length+' คน';
+  el.innerHTML=list.map(e=>{
+    const nm=(e.firstTh||'')+' '+(e.lastTh||'');
+    const col=avatarColor(e.empId||nm);
+    const dot=e.status==='Active'?'var(--good)':'var(--bad)';
+    const init=(e.nick||e.firstTh||'?').slice(0,1);
+    return `<button class="rrow ${current===e.empId?'active':''}" onclick="select('${e.empId}')">
+      <span class="avatar" style="background:${col}">${init}</span>
+      <span class="rname"><span class="rtop">${nm} ${e._new?'<span class="rbadge-new">ใหม่</span>':''}</span>
+        <span class="rmeta"><span class="dot" style="background:${dot}"></span>${e.nick||''} · B${e.batch}</span></span>
+      <span class="rid mono">${e.empId}</span></button>`;
+  }).join('')||'<div style="padding:20px;text-align:center;color:var(--muted);font-size:12.5px">ไม่พบรายชื่อ</div>';
+}
+
+function select(id){ current=null; document.getElementById('navDash').classList.remove('active'); current=id; buildRoster(); renderReport(); if(window.innerWidth<=860)document.getElementById('sidebar').classList.remove('open'); document.getElementById('exportgrp').style.display='flex'; }
+
+
+// ===== Dashboard helpers =====
+function avg(arr){const v=arr.filter(x=>x!==null&&x!==undefined&&!isNaN(x));return v.length?v.reduce((a,b)=>a+b,0)/v.length:null;}
+function scoreColor(pct){return pct>=75?'var(--good)':pct>=60?'var(--brand)':'var(--bad)';}
+function prodColor10(v){return v>=9?'var(--good)':v>=8?'var(--brand)':'var(--bad)';}
+
+// ===== Dashboard state =====
+let dashFilter={tm:'all',gl:'all',batch:'all'};
+let compareBatch=null; // for batch comparison
+
+function showDashboard(){
+  current=null;
+  document.getElementById('navDash').classList.add('active');
+  document.querySelectorAll('.rrow').forEach(r=>r.classList.remove('active'));
+  document.getElementById('crumbName').textContent='ภาพรวม Dashboard';
+  document.getElementById('exportgrp').style.display='none';
+  renderDashboard();
+  if(window.innerWidth<=860)document.getElementById('sidebar').classList.remove('open');
+}
+
+function renderDashboard(){
+  // apply filters
+  let pool=DATA;
+  if(dashFilter.tm!=='all') pool=pool.filter(e=>(e.tm||'').trim()===dashFilter.tm);
+  if(dashFilter.gl!=='all') pool=pool.filter(e=>(e.gl||'').trim()===dashFilter.gl);
+  if(dashFilter.batch!=='all') pool=pool.filter(e=>String(e.batch)===String(dashFilter.batch));
+  const all=pool;
+  const active=all.filter(e=>e.status==='Active');
+  const resigned=all.filter(e=>e.status==='Resigned');
+  const rpVals=all.map(e=>rpPct(e)).filter(x=>x!==null);
+  const rpAvg=avg(rpVals);
+  const retentionPct=all.length?Math.round(active.length/all.length*100):0;
+
+  // unique TM / GL / Batch for filter dropdowns (from full DATA)
+  const allTMs=[...new Set(DATA.map(e=>(e.tm||'').trim()).filter(Boolean))].sort();
+  const allGLs=[...new Set(DATA.map(e=>(e.gl||'').trim()).filter(Boolean))].sort();
+  const allBatches=[...new Set(DATA.map(e=>e.batch).filter(x=>x!=null))].sort((a,b)=>a-b);
+
+  // product stats (first-attempt)
+  const prodStats=PRODUCTS.map(p=>{
+    const firstScores=all.map(e=>num(e[p.cols[0]])).filter(x=>x!==null);
+    const a=avg(firstScores);
+    const passRate=firstScores.length?Math.round(firstScores.filter(s=>s>=8).length/firstScores.length*100):0;
+    let need=0,tot=0;
+    all.forEach(e=>{const f=num(e[p.cols[0]]);const s=num(e[p.cols[1]]);if(f!==null){tot++;if(s!==null)need++;}});
+    const retestRate=tot?Math.round(need/tot*100):0;
+    return {p,avg:a,passRate,retestRate,n:firstScores.length};
+  });
+  const prodSorted=[...prodStats].sort((a,b)=>(a.avg??99)-(b.avg??99));
+  const weakProd=prodSorted[0], strongProd=prodSorted[prodSorted.length-1];
+
+  // RP stats
+  const rpStats=RP_DIMS.map(d=>{
+    const vals=all.map(e=>e.rp&&e.rp[d.k]!=null?e.rp[d.k]*100:null).filter(x=>x!==null);
+    return {d,avg:avg(vals),n:vals.length,lowCount:vals.filter(x=>x<60).length};
+  });
+  const rpSorted=[...rpStats].filter(x=>x.avg!==null).sort((a,b)=>a.avg-b.avg);
+  const weakRP=rpSorted[0], strongRP=rpSorted[rpSorted.length-1];
+
+  // batch data (always from full DATA for trend chart)
+  const batchMap={};
+  DATA.forEach(e=>{const b=e.batch;if(b==null)return;(batchMap[b]=batchMap[b]||[]).push(e);});
+  const batches=Object.keys(batchMap).map(Number).sort((a,b)=>a-b).map(b=>{
+    const list=batchMap[b];
+    const prodAvgAll=avg(list.flatMap(e=>PRODUCTS.map(p=>bestProdScore(e,p)).filter(x=>x!==null)));
+    const rpAvgB=avg(list.map(e=>rpPct(e)).filter(x=>x!==null));
+    const qaAvg=avg(list.map(e=>{const m=/(\d+)\s*\/\s*10/.exec(e.QA||'');return m?+m[1]:null;}).filter(x=>x!==null));
+    const act=list.filter(e=>e.status==='Active').length;
+    const prodByKey={};
+    PRODUCTS.forEach(p=>{prodByKey[p.key]=avg(list.map(e=>bestProdScore(e,p)).filter(x=>x!==null));});
+    const rpByKey={};
+    RP_DIMS.forEach(d=>{rpByKey[d.k]=avg(list.map(e=>e.rp&&e.rp[d.k]!=null?e.rp[d.k]*100:null).filter(x=>x!==null));});
+    // pass rate
+    const passRates={};
+    PRODUCTS.forEach(p=>{const sc=list.map(e=>bestProdScore(e,p)).filter(x=>x!==null);passRates[p.key]=sc.length?Math.round(sc.filter(x=>x>=8).length/sc.length*100):null;});
+    return {b,n:list.length,act,prodAvg:prodAvgAll,rpAvg:rpAvgB,qaAvg,prodByKey,rpByKey,passRates};
+  });
+
+  // ===== build HTML =====
+  // filter bar
+  const filterBar=`<div class="dash-filters">
+    <span class="df-label">กรอง:</span>
+    <select onchange="dashFilter.tm=this.value;renderDashboard()">
+      <option value="all">ทุก TM</option>
+      ${allTMs.map(t=>`<option value="${t}" ${dashFilter.tm===t?'selected':''}>${t.split(' ')[0]||t}</option>`).join('')}
+    </select>
+    <select onchange="dashFilter.gl=this.value;renderDashboard()">
+      <option value="all">ทุก GL</option>
+      ${allGLs.map(g=>`<option value="${g}" ${dashFilter.gl===g?'selected':''}>${g.split(' ')[0]||g}</option>`).join('')}
+    </select>
+    <select onchange="dashFilter.batch=this.value;renderDashboard()">
+      <option value="all">ทุก Batch</option>
+      ${allBatches.map(b=>`<option value="${b}" ${String(dashFilter.batch)===String(b)?'selected':''}>Batch ${b}</option>`).join('')}
+    </select>
+    ${(dashFilter.tm!=='all'||dashFilter.gl!=='all'||dashFilter.batch!=='all')?`<button class="df-clear" onclick="dashFilter={tm:'all',gl:'all',batch:'all'};renderDashboard()">✕ ล้างตัวกรอง</button>`:''}
+    <span class="df-count">${all.length} คน</span>
+    <div style="margin-left:auto">
+      <button class="btn" style="font-size:12px;padding:6px 12px" onclick="exportDashboardPDF()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M12 3v12m0 0l-4-4m4 4l4-4"/><path d="M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>
+        Export Dashboard PDF
+      </button>
+    </div>
+  </div>`;
+
+  const kpis=[
+    {v:all.length,l:'พนักงาน',s:active.length+' Active · '+resigned.length+' Resigned',c:'var(--steel)'},
+    {v:retentionPct+'%',l:'อัตราคงอยู่',s:'Active '+active.length+' คน',c:retentionPct>=60?'var(--good)':'var(--brand)'},
+    {v:rpAvg===null?'—':Math.round(rpAvg)+'%',l:'Role Play เฉลี่ย',s:'จาก '+rpVals.length+' คน',c:scoreColor(rpAvg||0)},
+    {v:batches.length,l:'Batch',s:'B'+batches[0].b+'–B'+batches[batches.length-1].b,c:'var(--brand-deep)'},
+  ].map(k=>`<div class="kpi"><div class="kaccent" style="background:${k.c}"></div><div class="kv" style="color:${k.c}">${k.v}</div><div class="kl">${k.l}</div><div class="ks">${k.s}</div></div>`).join('');
+
+  const prodBars=prodStats.map(ps=>{
+    const pct=ps.avg===null?0:ps.avg*10;
+    const col=ps.avg===null?'var(--line)':prodColor10(ps.avg);
+    return `<div class="hbar-row">
+      <div class="hlabel">${ps.p.key} <small>${ps.p.th}</small></div>
+      <div class="hbar-track"><div class="hbar-fill" style="width:${pct}%;background:${col}"><span>${ps.avg===null?'':ps.avg.toFixed(1)}</span></div></div>
+      <div class="hbar-val">${ps.avg===null?'—':ps.avg.toFixed(1)+'/10'}<small> · RE-TEST ${ps.retestRate}%</small></div>
+    </div>`;
+  }).join('');
+
+  const rpBars=rpStats.map(rs=>{
+    const pct=rs.avg===null?0:rs.avg;
+    const col=rs.avg===null?'var(--line)':scoreColor(rs.avg);
+    return `<div class="hbar-row">
+      <div class="hlabel">${rs.d.label.split(' /')[0]} <small>${rs.d.w}%</small></div>
+      <div class="hbar-track"><div class="hbar-fill" style="width:${pct}%;background:${col}"><span>${rs.avg===null?'':Math.round(rs.avg)+'%'}</span></div></div>
+      <div class="hbar-val">${rs.avg===null?'—':Math.round(rs.avg)+'%'}<small> · อ่อน ${rs.lowCount}</small></div>
+    </div>`;
+  }).join('');
+
+  const batchChart=buildBatchChart(batches,compareBatch);
+
+  // batch comparison selector
+  const cmpBar=`<div class="cmp-bar">
+    <span style="font-size:12.5px;color:var(--muted)">เปรียบเทียบ Batch:</span>
+    <select onchange="compareBatch=this.value==='none'?null:+this.value;renderDashboard()">
+      <option value="none">— เลือก Batch —</option>
+      ${batches.map(bt=>`<option value="${bt.b}" ${compareBatch===bt.b?'selected':''}>Batch ${bt.b} (${bt.n} คน)</option>`).join('')}
+    </select>
+    ${compareBatch?buildBatchCompare(batches,compareBatch):''}
+  </div>`;
+
+  // batch table with pass rate
+  const batchTable=`<div class="chart-wrap"><table class="batch-table">
+    <thead><tr>
+      <th style="text-align:left">Batch</th><th>คน</th>
+      ${PRODUCTS.map(p=>`<th title="${p.th}">${p.key}</th>`).join('')}
+      <th>Pass%</th><th>RP</th><th>QA</th>
+    </tr></thead>
+    <tbody>${batches.map(bt=>`<tr class="bt-row" onclick="showBatchDetail(${bt.b})" style="cursor:pointer" title="คลิกเพื่อดูรายชื่อใน Batch ${bt.b}">
+      <td class="bt-first">B${bt.b}</td>
+      <td>${bt.n}<small style="color:var(--muted)"> (${bt.act}✓)</small></td>
+      ${PRODUCTS.map(p=>{const v=bt.prodByKey[p.key];return `<td>${v===null?'<span style="color:var(--muted)">—</span>':`<span class="minicell" style="background:${prodColor10(v)}22;color:${prodColor10(v)}">${v.toFixed(1)}</span>`}</td>`;}).join('')}
+      <td>${(()=>{const pr=PRODUCTS.map(p=>bt.passRates[p.key]).filter(x=>x!==null);return pr.length?`<span class="minicell" style="background:${scoreColor(avg(pr))}22;color:${scoreColor(avg(pr))}">${Math.round(avg(pr))}%</span>`:'—';})()}</td>
+      <td>${bt.rpAvg===null?'—':`<span class="minicell" style="background:${scoreColor(bt.rpAvg)}22;color:${scoreColor(bt.rpAvg)}">${Math.round(bt.rpAvg)}%</span>`}</td>
+      <td>${bt.qaAvg===null?'—':bt.qaAvg.toFixed(1)}</td>
+    </tr>`).join('')}</tbody></table>
+    <div style="font-size:11.5px;color:var(--muted);margin-top:8px">💡 คลิกที่แถวเพื่อดูรายชื่อพนักงานใน Batch นั้น</div>
+  </div>`;
+
+  document.getElementById('content').innerHTML=`
+  <div class="dash" id="dashContent">
+    ${filterBar}
+    <div class="dash-h" style="margin-top:16px"><h2>ภาพรวมผลการอบรม Newcomer${dashFilter.tm!=='all'?' · '+dashFilter.tm.split(' ')[0]:dashFilter.gl!=='all'?' · '+dashFilter.gl.split(' ')[0]:dashFilter.batch!=='all'?' · Batch '+dashFilter.batch:' H1/2026'}</h2><p>วิเคราะห์คะแนนรวมทั้งทีม · ผลิตภัณฑ์ · Role Play รายทักษะ · และแนวโน้มราย Batch</p></div>
+    <div class="kpi-row">${kpis}</div>
+
+    <div class="dash-card">
+      <h3>คะแนนความรู้ผลิตภัณฑ์ <span class="hint">ครั้งแรกเฉลี่ย (เต็ม 10) · % RE-TEST</span></h3>
+      <div class="sub">ใช้คะแนนครั้งแรกเพื่อชี้ bottleneck ที่แท้จริง</div>
+      ${all.length?prodBars:'<p style="color:var(--muted)">ไม่มีข้อมูลในกลุ่มที่เลือก</p>'}
+      ${all.length&&weakProd?`<div class="insight"><span class="ii">◆</span><div>Bottleneck คือ <b>${weakProd.p.key}</b> (เฉลี่ย ${weakProd.avg?.toFixed(1)||'—'}/10 · RE-TEST ${weakProd.retestRate}%) · แข็งแรงสุด <b>${strongProd.p.key}</b> (${strongProd.avg?.toFixed(1)||'—'}/10 · RE-TEST ${strongProd.retestRate}%)</div></div>`:''}
+    </div>
+
+    <div class="dash-card">
+      <h3>Role Play รายทักษะ <span class="hint">เฉลี่ยทั้งทีม (%)</span></h3>
+      <div class="sub">6 ทักษะตามเกณฑ์การประเมิน พร้อมน้ำหนักคะแนน</div>
+      ${all.length?rpBars:'<p style="color:var(--muted)">ไม่มีข้อมูลในกลุ่มที่เลือก</p>'}
+      ${all.length&&weakRP?`<div class="insight"><span class="ii">◆</span><div>อ่อนสุด <b>${weakRP.d.label.split(' /')[0]}</b> เฉลี่ย ${Math.round(weakRP.avg)}% (${weakRP.lowCount} คนต่ำกว่า 60%) · แข็งสุด <b>${strongRP.d.label.split(' /')[0]}</b> (${Math.round(strongRP.avg)}%)</div></div>`:''}
+    </div>
+
+    <div class="dash-card">
+      <h3>แนวโน้มราย Batch <span class="hint">ผลิตภัณฑ์เฉลี่ย & RP เฉลี่ย · เลือกเปรียบ 2 Batch</span></h3>
+      <div class="sub">ติดตามคุณภาพการอบรมข้าม Batch B${batches[0].b}–B${batches[batches.length-1].b}</div>
+      ${cmpBar}
+      ${batchChart}
+      <div class="legend-inline">
+        <span><i style="background:var(--steel)"></i>ผลิตภัณฑ์เฉลี่ย</span>
+        <span><i style="background:var(--brand)"></i>Role Play เฉลี่ย</span>
+        ${compareBatch?`<span><i style="background:var(--good);opacity:.5"></i>Batch ${compareBatch} (เปรียบ)</span>`:''}
+      </div>
+    </div>
+
+    <div class="dash-card">
+      <h3>ตารางสรุปราย Batch <span class="hint">คะแนนเฉลี่ย · % ผ่าน · คลิกเพื่อดูรายชื่อ</span></h3>
+      <div class="sub">คะแนนผลิตภัณฑ์ · Pass% รวม · RP เฉลี่ย · QA เฉลี่ย</div>
+      ${batchTable}
+    </div>
+  </div>`;
+}
+
+function buildBatchCompare(batches,cmpB){
+  const bt=batches.find(x=>x.b===cmpB); if(!bt)return'';
+  const avg2=x=>x===null?'—':typeof x==='number'?x.toFixed(1):'—';
+  const items=[
+    {l:'จำนวน',v:`${bt.n} คน (${bt.act} Active)`},
+    {l:'RP เฉลี่ย',v:bt.rpAvg===null?'—':Math.round(bt.rpAvg)+'%'},
+    {l:'QA เฉลี่ย',v:bt.qaAvg===null?'—':bt.qaAvg.toFixed(1)+'/10'},
+    ...PRODUCTS.map(p=>({l:`${p.key}`,v:(bt.prodByKey[p.key]!==null?bt.prodByKey[p.key].toFixed(1):' — ')+'/10'})),
+  ];
+  return `<div class="cmp-card">
+    <div class="cmp-title">Batch ${cmpB} — รายละเอียดเปรียบ</div>
+    <div class="cmp-grid">${items.map(it=>`<div class="cmp-item"><div class="ci-l">${it.l}</div><div class="ci-v">${it.v}</div></div>`).join('')}</div>
+    <button class="cmp-roster-btn" onclick="showBatchDetail(${cmpB})">→ ดูรายชื่อ Batch ${cmpB}</button>
+  </div>`;
+}
+
+function showBatchDetail(batchNum){
+  const list=DATA.filter(e=>e.batch===batchNum);
+  if(!list.length)return;
+  document.getElementById('crumbName').textContent=`Batch ${batchNum} (${list.length} คน)`;
+  const rows=list.map(e=>{
+    const rp=rpPct(e);
+    const prodAvg=avg(PRODUCTS.map(p=>bestProdScore(e,p)).filter(x=>x!==null));
+    const stCls=e.status==='Active'?'color:var(--good)':'color:var(--bad)';
+    return `<tr onclick="select('${e.empId}')" style="cursor:pointer" class="bt-row">
+      <td><span style="${stCls};font-weight:600">${e.status==='Active'?'●':'○'}</span></td>
+      <td class="bt-first">${e.prefix||''}${e.firstTh||''} ${e.lastTh||''} <small style="color:var(--muted)">${e.nick||''}</small></td>
+      <td style="font-family:monospace;font-size:12px">${e.empId}</td>
+      <td style="font-size:12px;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${(e.gl||'').split(' ')[0]||'—'}</td>
+      ${PRODUCTS.map(p=>{const v=bestProdScore(e,p);return `<td>${v===null?'<span style="color:var(--muted)">—</span>':`<span class="minicell" style="background:${prodColor10(v)}22;color:${prodColor10(v)}">${v}</span>`}</td>`;}).join('')}
+      <td>${prodAvg===null?'—':prodAvg.toFixed(1)}</td>
+      <td>${rp===null?'—':`<span class="minicell" style="background:${scoreColor(rp)}22;color:${scoreColor(rp)}">${rp}%</span>`}</td>
+    </tr>`;
+  }).join('');
+
+  const prodAvgBatch=avg(list.flatMap(e=>PRODUCTS.map(p=>bestProdScore(e,p)).filter(x=>x!==null)));
+  const rpAvgBatch=avg(list.map(e=>rpPct(e)).filter(x=>x!==null));
+
+  document.getElementById('content').innerHTML=`
+  <div class="dash">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap">
+      <button class="btn" onclick="showDashboard()" style="font-size:12.5px">← กลับ Dashboard</button>
+      <h2 style="font-size:19px;letter-spacing:-.02em">Batch ${batchNum} <span style="font-weight:400;color:var(--muted);font-size:14px">${list.length} คน · ${list.filter(e=>e.status==='Active').length} Active</span></h2>
+      <div style="margin-left:auto;display:flex;gap:10px">
+        <span class="kpi" style="padding:10px 16px;margin:0;min-width:0">
+          <div class="kl">ผลิตภัณฑ์เฉลี่ย</div>
+          <div class="kv" style="font-size:20px;color:var(--steel)">${prodAvgBatch===null?'—':prodAvgBatch.toFixed(1)}</div>
+        </span>
+        <span class="kpi" style="padding:10px 16px;margin:0;min-width:0">
+          <div class="kl">RP เฉลี่ย</div>
+          <div class="kv" style="font-size:20px;color:${scoreColor(rpAvgBatch||0)}">${rpAvgBatch===null?'—':Math.round(rpAvgBatch)+'%'}</div>
+        </span>
+      </div>
+    </div>
+    <div class="dash-card" style="padding:0;overflow:hidden">
+      <div class="chart-wrap">
+        <table class="batch-table">
+          <thead><tr>
+            <th></th><th style="text-align:left">ชื่อ</th><th>รหัส</th><th>GL</th>
+            ${PRODUCTS.map(p=>`<th title="${p.th}">${p.key}</th>`).join('')}
+            <th>เฉลี่ย</th><th>RP</th>
+          </tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+      <div style="padding:10px 16px;font-size:11.5px;color:var(--muted)">💡 คลิกชื่อเพื่อเปิดรายงานรายบุคคล</div>
+    </div>
+  </div>`;
+}
+
+// SVG line chart with optional comparison batch highlight
+function buildBatchChart(batches,cmpB){
+  if(!batches.length)return '';
+  const W=Math.max(560,batches.length*54),H=240,PL=38,PR=14,PT=16,PB=42;
+  const iw=W-PL-PR,ih=H-PT-PB;
+  const x=i=>PL+(batches.length===1?iw/2:iw*i/(batches.length-1));
+  const y=v=>PT+ih*(1-v/100);
+  const prodPts=batches.map((bt,i)=>({x:x(i),y:bt.prodAvg===null?null:y(bt.prodAvg*10),v:bt.prodAvg,b:bt.b}));
+  const rpPts=batches.map((bt,i)=>({x:x(i),y:bt.rpAvg===null?null:y(bt.rpAvg),v:bt.rpAvg,b:bt.b}));
+  const line=(pts,col)=>{let d='';let s=false;pts.forEach(p=>{if(p.y===null){s=false;return;}d+=(s?'L':'M')+p.x.toFixed(1)+' '+p.y.toFixed(1)+' ';s=true;});return `<path d="${d}" fill="none" stroke="${col}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>`;};
+  const dots=(pts,col)=>pts.map(p=>{if(p.y===null)return '';const hl=cmpB&&p.b===cmpB;return `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${hl?6:3.5}" fill="${hl?col:'#fff'}" stroke="${col}" stroke-width="${hl?0:2}" opacity="${hl?0.85:1}"/>`+( hl?`<text x="${p.x.toFixed(1)}" y="${p.y-10}" text-anchor="middle" font-size="10" fill="${col}" font-weight="600">B${p.b}</text>`:'' );}).join('');
+  const grid=[0,25,50,75,100].map(g=>`<line x1="${PL}" y1="${y(g)}" x2="${W-PR}" y2="${y(g)}" stroke="var(--line-soft)" stroke-width="1"/><text x="${PL-6}" y="${y(g)+3}" text-anchor="end" font-size="10" fill="var(--muted)">${g}</text>`).join('');
+  const xlabels=batches.map((bt,i)=>`<text x="${x(i).toFixed(1)}" y="${H-PB+16}" text-anchor="middle" font-size="${cmpB&&bt.b===cmpB?11:10}" font-weight="${cmpB&&bt.b===cmpB?'600':'400'}" fill="${cmpB&&bt.b===cmpB?'var(--good)':'var(--muted)'}">B${bt.b}</text>`).join('');
+  return `<div class="chart-wrap"><svg viewBox="0 0 ${W} ${H}" style="width:100%;max-width:${W}px;min-width:520px">
+    ${grid}${line(prodPts,'var(--steel)')}${line(rpPts,'var(--brand)')}${dots(prodPts,'var(--steel)')}${dots(rpPts,'var(--brand)')}${xlabels}
+  </svg></div>`;
+}
+
+// Export Dashboard PDF
+function exportDashboardPDF(){
+  const el=document.getElementById('dashContent')||document.getElementById('content');
+  if(!el){notify('ไม่พบ Dashboard content','err');return;}
+  if(typeof html2pdf==='undefined'){
+    notify('กำลังเปิดหน้าต่างพิมพ์ — เลือก "Save as PDF"','info');
+    setTimeout(()=>window.print(),300);return;
+  }
+  const today=new Date();
+  const dd=String(today.getDate()).padStart(2,'0');
+  const mm=String(today.getMonth()+1).padStart(2,'0');
+  const yy=today.getFullYear();
+  const opt={margin:[8,8,8,8],filename:`NTL_Dashboard_${yy}${mm}${dd}.pdf`,image:{type:'jpeg',quality:.95},html2canvas:{scale:1.8,useCORS:true},jsPDF:{unit:'mm',format:'a4',orientation:'landscape'}};
+  try{html2pdf().set(opt).from(el).save();}
+  catch(e){notify('สร้าง PDF ไม่สำเร็จ ใช้หน้าต่างพิมพ์แทน','info');setTimeout(()=>window.print(),300);}
+}
+
+// ===== Add employee =====
+function nextEmpId(){
+  // detect the common prefix+number pattern from existing IDs (e.g. CF306107)
+  let best=null;
+  DATA.forEach(e=>{const m=/^([A-Za-z]+)(\d+)$/.exec((e.empId||'').trim());if(m){const n=parseInt(m[2]);if(!best||n>best.n)best={pfx:m[1],n,len:m[2].length};}});
+  if(best)return best.pfx+String(best.n+1).padStart(best.len,'0');
+  return 'NEW'+String(DATA.length+1).padStart(3,'0');
+}
+// build GL -> TM map from actual data (names trimmed, deduplicated)
+// GL -> TM authoritative mapping (จากไฟล์รายชื่อ TM GL — ครอบคลุมทุกคนแม้ยังไม่มีในรายชื่อพนักงาน)
+const GL_TM_MAP_MASTER = {
+  'Hathaichanok Timmaneechay'  : 'Chartree Kaewwachira',
+  'Thitarat Chaivachirarote'   : 'Chartree Kaewwachira',
+  'Virunyupa Tongruk'          : 'Chartree Kaewwachira',
+  'Jadsadapron Boonyasai'      : 'Jurapornphat Pimlee',
+  'Kornpassorn Rae-nak'        : 'Jurapornphat Pimlee',
+  'Thanawat Chaiyakort'        : 'Jurapornphat Pimlee',
+  'Kanya Sarachatthanasub'     : 'Nicharee Wattanakitjakul',
+  'Somkiart Janjaen'           : 'Nicharee Wattanakitjakul',
+  'Somkiart Janjaeng'          : 'Nicharee Wattanakitjakul',
+  'Thananchanok Siripongwut'   : 'Nicharee Wattanakitjakul',
+  'Maliwan Maneeloon'          : 'Piboon Kriangsaksri',
+  'Supannee Arthan'            : 'Piboon Kriangsaksri',
+  'Supattra Kaewkongnork'      : 'Piboon Kriangsaksri',
+  'Panupong Nuankliang'        : 'Saksiri Kessakorn',
+  'Panupong Nuankling'         : 'Saksiri Kessakorn',
+  'Patcharaporn Singlawon'     : 'Saksiri Kessakorn',
+  'Ratchanee Tenawat'          : 'Saksiri Kessakorn',
+  'Sirintra Buaphanngam'       : 'Saksiri Kessakorn',
+};
+// merge DATA-derived (for backward compat) with master; master takes priority
+const GL_TM_MAP=(()=>{
+  const m={};
+  DATA.forEach(e=>{const gl=(e.gl||'').trim(),tm=(e.tm||'').trim();if(gl&&tm&&!m[gl])m[gl]=tm;});
+  // patch typo from old data
+  if(m['Hathaichanok Timmaneecha']) { m['Hathaichanok Timmaneechay']=m['Hathaichanok Timmaneecha']||'Chartree Kaewwachira'; delete m['Hathaichanok Timmaneecha']; }
+  // overlay master (adds missing, corrects TM names)
+  Object.assign(m, GL_TM_MAP_MASTER);
+  return m;
+})();
+function tmForGL(gl){return GL_TM_MAP[(gl||'').trim()]||'';}
+function syncTM(){document.getElementById('f_tm').value=tmForGL(document.getElementById('f_gl').value);}
+function openAddModal(){
+  // populate GL dropdown from real GL names
+  const glSel=document.getElementById('f_gl');
+  const gls=Object.keys(GL_TM_MAP).sort();
+  glSel.innerHTML=gls.map(g=>`<option value="${g.replace(/"/g,'&quot;')}">${g}</option>`).join('');
+  syncTM();
+  // product score inputs
+  document.getElementById('prodInputs').innerHTML=PRODUCTS.map(p=>`
+    <div class="mscore-item"><div class="ml">${p.key} <small>· ${p.th}</small></div>
+      <div class="mpair">
+        <div style="flex:1"><label>ครั้งที่ 1</label><input id="f_${p.cols[0]}" type="number" min="0" max="10"></div>
+        <div style="flex:1"><label>RE-TEST</label><input id="f_${p.cols[1]}" type="number" min="0" max="10"></div>
+      </div></div>`).join('');
+  // RP dimension inputs
+  document.getElementById('rpInputs').innerHTML=RP_DIMS.map(d=>`
+    <div class="mscore-item"><div class="ml">${d.label.split(' /')[0]} <small>· ${d.w}%</small></div>
+      <input id="f_rp_${d.k}" type="number" min="0" max="100" placeholder="0–100" style="width:100%;padding:6px 8px;border:1px solid var(--line);border-radius:6px;font-family:'IBM Plex Mono',monospace;font-size:12.5px;text-align:center;background:var(--canvas)"></div>`).join('');
+  // suggest batch = current max +1
+  const maxB=Math.max(...DATA.map(e=>e.batch||0));
+  document.getElementById('f_batch').value=maxB+1;
+  document.getElementById('f_empId').value='';
+  document.getElementById('modalErr').textContent='';
+  ['firstTh','lastTh','firstEn','lastEn','nick','trainDate','qa'].forEach(k=>{const el=document.getElementById('f_'+k);if(el)el.value='';});
+  document.getElementById('addModal').classList.add('open');
+}
+function closeAddModal(){document.getElementById('addModal').classList.remove('open');}
+document.getElementById('addModal').addEventListener('click',e=>{if(e.target.id==='addModal')closeAddModal();});
+
+function saveNewEmp(){
+  const v=id=>{const el=document.getElementById(id);return el?el.value.trim():'';};
+  const firstTh=v('f_firstTh');
+  if(!firstTh){document.getElementById('modalErr').textContent='กรุณากรอกชื่อจริง (ไทย) อย่างน้อย';return;}
+  let empId=v('f_empId')||nextEmpId();
+  if(DATA.some(e=>e.empId===empId)){document.getElementById('modalErr').textContent='รหัสพนักงาน '+empId+' ซ้ำกับที่มีอยู่แล้ว';return;}
+  const numOrDash=id=>{const x=v(id);return x===''?'-':(isNaN(+x)?x:+x);};
+  const numOrNull=id=>{const x=v(id);return x===''?null:(isNaN(+x)?x:+x);};
+  const gl=v('f_gl');
+  // collect RP dimensions (as fractions), compute weighted total
+  const rpObj={}; let wSum=0,wTot=0,anyRp=false;
+  RP_DIMS.forEach(d=>{const x=v('f_rp_'+d.k);if(x===''){rpObj[d.k]=null;}else{const f=(+x)/100;rpObj[d.k]=f;wSum+=f*d.w;wTot+=d.w;anyRp=true;}});
+  const rpTotal=anyRp&&wTot>0?wSum/wTot:null;
+  const emp={
+    batch:+v('f_batch')||null, seq:DATA.length+1, status:v('f_status'),
+    startDate:null, trainDate:v('f_trainDate')||'-', empId,
+    prefix:v('f_prefix'), firstTh, lastTh:v('f_lastTh'),
+    firstEn:v('f_firstEn'), lastEn:v('f_lastEn'), nick:v('f_nick'), nickEn:'',
+    gl, tm:tmForGL(gl), resignDate:v('f_status')==='Resigned'?'':'N/A',
+    M1:numOrDash('f_M1'),M2:numOrDash('f_M2'),C1:numOrDash('f_C1'),C2:numOrDash('f_C2'),
+    T1:numOrDash('f_T1'),T2:numOrDash('f_T2'),BT1:numOrDash('f_BT1'),BT2:numOrDash('f_BT2'),
+    L1:numOrDash('f_L1'),L2:numOrDash('f_L2'),
+    QA:v('f_qa')||'-', RP:rpTotal, rp:rpObj, workDays:null, reason:null, _new:true
+  };
+  DATA.push(emp);
+  closeAddModal();
+  query=''; document.getElementById('search').value='';
+  filter='all'; document.querySelectorAll('#filters button').forEach(b=>b.classList.toggle('on',b.dataset.f==='all'));
+  buildRoster();
+  select(empId);
+}
+
+// ===== Excel upload / merge =====
+function handleXlsxUpload(input){
+  const file=input.files&&input.files[0];
+  if(!file)return;
+  if(typeof XLSX==='undefined'){notify('โหลดไลบรารี Excel ไม่ได้ ลองเชื่อมเน็ตแล้วรีเฟรช','err');input.value='';return;}
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const wb=XLSX.read(new Uint8Array(e.target.result),{type:'array'});
+      const res=mergeWorkbook(wb);
+      if(res.error){notify(res.error,'err');}
+      else{
+        buildRoster(); showDashboard();
+        const fbMsg=res.hasFeedback?' + คืน Feedback ทั้งหมดแล้ว':'';
+        notify(`นำเข้าสำเร็จ · เพิ่มใหม่ ${res.added} คน · อัปเดต ${res.updated} คน${fbMsg}`,'info');
+      }
+    }catch(err){ notify('อ่านไฟล์ไม่สำเร็จ: '+err.message,'err'); }
+    input.value='';
+  };
+  reader.onerror=()=>{notify('อ่านไฟล์ไม่สำเร็จ','err');input.value='';};
+  reader.readAsArrayBuffer(file);
+}
+
+// find a sheet by fuzzy name
+function pickSheet(wb,names){
+  for(const want of names){
+    const hit=wb.SheetNames.find(n=>n.trim().toLowerCase()===want.toLowerCase());
+    if(hit)return wb.Sheets[hit];
+  }
+  // fallback: partial match
+  for(const want of names){
+    const hit=wb.SheetNames.find(n=>n.toLowerCase().includes(want.toLowerCase()));
+    if(hit)return wb.Sheets[hit];
+  }
+  return null;
+}
+
+function mergeWorkbook(wb){
+  const mainWs=pickSheet(wb,['Current 2026','Current','Newcomer']);
+  if(!mainWs)return {error:'ไม่พบชีต "Current 2026" ในไฟล์ — โปรดใช้ไฟล์รูปแบบเดียวกับต้นฉบับ'};
+  const rpWs=pickSheet(wb,['RP Score','RP','Role Play']);
+  // sheet_to_json with header:1 => array of rows
+  const grid=XLSX.utils.sheet_to_json(mainWs,{header:1,defval:null,raw:true});
+  // header is row index 1 (0-based) since row 0 is the title banner; detect the row that has 'รหัสพนักงาน'
+  let hdrRow=grid.findIndex(r=>Array.isArray(r)&&r.some(c=>String(c).trim()==='รหัสพนักงาน'));
+  if(hdrRow<0)hdrRow=1;
+  const dataRows=grid.slice(hdrRow+1);
+
+  // RP lookup by empId
+  const rpLookup={};
+  if(rpWs){
+    const rg=XLSX.utils.sheet_to_json(rpWs,{header:1,defval:null,raw:true});
+    let rh=rg.findIndex(r=>Array.isArray(r)&&r.some(c=>String(c).trim()==='รหัสพนักงาน'));
+    if(rh<0)rh=1;
+    // detect empId column (may be col5 or col6 depending on format)
+    const hdr=rg[rh]||[];
+    const eidCol=hdr.findIndex(c=>String(c||'').trim()==='รหัสพนักงาน');
+    const dateCol=hdr.findIndex(c=>String(c||'').includes('ประเมิน'));
+    let lastRpDate=null;
+    rg.slice(rh+1).forEach(r=>{
+      // fill-forward rpDate
+      const rd=cellStr(r[dateCol>=0?dateCol:5]);
+      if(rd&&rd.match(/\d/)) lastRpDate=rd;
+      const eid=cellStr(r[eidCol>=0?eidCol:6]); if(!eid)return;
+      // dim columns: after empId, skip 8 metadata cols → dims at eidCol+8..+13, total at eidCol+14
+      const d=eidCol>=0?eidCol:6;
+      rpLookup[eid]={
+        rpDate:lastRpDate,
+        opening:frac(r[d+8]),pitching:frac(r[d+9]),objection:frac(r[d+10]),
+        documents:frac(r[d+11]),closing:frac(r[d+12]),inquiry:frac(r[d+13])
+      };
+    });
+  }
+
+  // fill-forward batch & trainDate
+  let lastBatch=null,lastTrain=null,added=0,updated=0;
+  dataRows.forEach(r=>{
+    const eid=cellStr(r[5]); if(!eid)return;
+    if(r[0]!=null&&r[0]!=='')lastBatch=r[0];
+    const td=cellStr(r[4]); if(td)lastTrain=td;
+    const rec={
+      batch:lastBatch!=null?(+lastBatch||lastBatch):null, seq:r[1], status:cellStr(r[2])||'Active',
+      startDate:cellStr(r[3]), trainDate:lastTrain||'-', empId:eid,
+      prefix:cellStr(r[6]), firstTh:cellStr(r[7]), lastTh:cellStr(r[8]),
+      firstEn:cellStr(r[9]), lastEn:cellStr(r[10]), nick:cellStr(r[11]), nickEn:cellStr(r[12]),
+      gl:cellStr(r[13]), tm:cellStr(r[14]), resignDate:cellStr(r[15])||'N/A',
+      M1:val10(r[16]),M2:val10(r[17]),C1:val10(r[18]),C2:val10(r[19]),
+      T1:val10(r[20]),T2:val10(r[21]),BT1:val10(r[22]),BT2:val10(r[23]),
+      L1:val10(r[24]),L2:val10(r[25]),
+      QA:cellStr(r[26])||'-', RP:frac(r[29]), workDays:cellStr(r[30]), reason:cellStr(r[31]),
+      rp:rpLookup[eid]||{opening:null,pitching:null,objection:null,documents:null,closing:null,inquiry:null},
+      rpDate:rpLookup[eid]?.rpDate||null
+    };
+    const idx=DATA.findIndex(x=>x.empId===eid);
+    if(idx>=0){
+      const old=DATA[idx];
+      // RP detail: keep old if new file has none
+      const hasRp=rpLookup[eid]&&Object.values(rpLookup[eid]).some(v=>v!=null);
+      if(!hasRp&&old.rp) rec.rp=old.rp;
+      // GL/TM: Excel wins if provided; fall back to app-edited value if Excel cell is empty
+      if(!rec.gl&&old.gl) rec.gl=old.gl;
+      if(!rec.tm&&old.tm) rec.tm=old.tm;
+      // preserve _new flag
+      rec._new=old._new;
+      DATA[idx]=rec; updated++;
+    }else{
+      rec._new=true; DATA.push(rec); added++;
+    }
+    // refresh resignReason in store only if not already set manually
+    if(store[eid]){
+      if(rec.reason&&rec.reason!=='Fast Track'&&!store[eid].resignReason)
+        store[eid].resignReason=rec.reason;
+    }
+  });
+  if(added===0&&updated===0)return {error:'ไม่พบข้อมูลพนักงานในไฟล์ (ตรวจสอบคอลัมน์ "รหัสพนักงาน")'};
+
+  // ── Restore Feedback sheet if present ──
+  const fbWs=pickSheet(wb,['Feedback','feedback','Feedback & พฤติกรรม']);
+  if(fbWs){
+    const fg=XLSX.utils.sheet_to_json(fbWs,{header:1,defval:null,raw:true});
+    fg.slice(1).forEach(r=>{
+      const eid=cellStr(r[0]); if(!eid)return;
+      const s=st(eid);
+      if(r[4])s.feedbackTrain=String(r[4]);
+      if(r[5])s.feedbackBehav=String(r[5]);
+      // tags
+      if(r[6]){const tags=String(r[6]).split(',').map(t=>t.trim()).filter(Boolean);tags.forEach(t=>{s.behavTags[t]=true;});}
+      // ratings
+      const rKeys=['ความรู้ผลิตภัณฑ์','ทักษะการขาย','การจัดการข้อโต้แย้ง','ความพร้อมขึ้นปฏิบัติงาน'];
+      rKeys.forEach((k,i)=>{const v=+(r[7+i]);if(v>=1&&v<=5)s.ratings[k]=v;});
+      if(r[11])s.resignReason=String(r[11]);
+    });
+  }
+
+  return {added,updated,hasFeedback:!!fbWs};
+}
+// helpers
+function cellStr(v){ if(v==null)return null; if(v instanceof Date){const d=v;return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;} const s=String(v).trim(); return s===''?null:s; }
+function val10(v){ if(v==null||v==='')return '-'; const n=+v; return isNaN(n)?String(v):n; }
+function frac(v){ if(v==null||v==='')return null; let n=+v; if(isNaN(n))return null; if(n>1)n=n/100; return n; }
+
+// ===== EXPORT ข้อมูลทั้งหมด (Backup + Restore) =====
+function exportAllData(){
+  if(typeof XLSX==='undefined'){notify('โหลดไลบรารี Excel ไม่ได้ ลองเชื่อมเน็ตแล้วรีเฟรช','err');return;}
+  const wb=XLSX.utils.book_new();
+
+  // ── Sheet 1: Current 2026 (รายชื่อ + คะแนนทั้งหมด) ──
+  const hdr=['Batch','ลำดับที่','Status','วันที่เริ่มงาน','วันอบรม','รหัสพนักงาน','คำนำหน้า','ชื่อจริง','นามสกุล',
+    'First Name','Surname','Nick Name','','GL','TM','Resigned Date',
+    'M1','M2','C1','C2','T1','T2','BT1','BT2','L1','L2','QA-Test','RP','จำนวนวันทำงาน','Reason of Resignation'];
+  const mainRows=[hdr];
+  DATA.forEach(e=>{
+    mainRows.push([
+      e.batch,e.seq,e.status,e.startDate,e.trainDate,e.empId,e.prefix,e.firstTh,e.lastTh,
+      e.firstEn,e.lastEn,e.nick,e.nickEn||'',e.gl,e.tm,e.resignDate,
+      e.M1,e.M2,e.C1,e.C2,e.T1,e.T2,e.BT1,e.BT2,e.L1,e.L2,
+      e.QA, e.RP!=null?Math.round(e.RP*100)+'%':'-', e.workDays, e.reason||'-'
+    ]);
+  });
+  const ws1=XLSX.utils.aoa_to_sheet(mainRows);
+  ws1['!cols']=[{wch:8},{wch:6},{wch:10},{wch:13},{wch:18},{wch:12},{wch:10},{wch:14},{wch:16},
+    {wch:14},{wch:16},{wch:10},{wch:6},{wch:24},{wch:24},{wch:13},
+    {wch:5},{wch:7},{wch:5},{wch:7},{wch:5},{wch:7},{wch:6},{wch:8},{wch:5},{wch:7},{wch:9},{wch:6},{wch:10},{wch:24}];
+  XLSX.utils.book_append_sheet(wb,ws1,'Current 2026');
+
+  // ── Sheet 2: RP Score ──
+  const rpHdr=['Batch','ลำดับที่','Status','วันที่เริ่มงาน','วันอบรม','รหัสพนักงาน','คำนำหน้า','ชื่อจริง','นามสกุล',
+    'First Name','Surname','Nick Name','','GL','TM','Resigned Date',
+    'Opening (15%)','Pitching (25%)','Objection (20%)','Documents (15%)','Closing (15%)','Inquiry (10%)','RP Total'];
+  const rpRows=[rpHdr];
+  DATA.forEach(e=>{
+    const r=e.rp||{};
+    rpRows.push([
+      e.batch,e.seq,e.status,e.startDate,e.trainDate,e.empId,e.prefix,e.firstTh,e.lastTh,
+      e.firstEn,e.lastEn,e.nick,e.nickEn||'',e.gl,e.tm,e.resignDate,
+      r.opening!=null?r.opening:'-', r.pitching!=null?r.pitching:'-',
+      r.objection!=null?r.objection:'-', r.documents!=null?r.documents:'-',
+      r.closing!=null?r.closing:'-', r.inquiry!=null?r.inquiry:'-',
+      e.RP!=null?e.RP:'-'
+    ]);
+  });
+  const ws2=XLSX.utils.aoa_to_sheet(rpRows);
+  ws2['!cols']=[{wch:6},{wch:6},{wch:10},{wch:13},{wch:18},{wch:12},{wch:10},{wch:14},{wch:16},
+    {wch:14},{wch:16},{wch:10},{wch:6},{wch:24},{wch:24},{wch:13},
+    {wch:14},{wch:14},{wch:14},{wch:14},{wch:14},{wch:12},{wch:10}];
+  XLSX.utils.book_append_sheet(wb,ws2,'RP Score');
+
+  // ── Sheet 3: Feedback & พฤติกรรม (สำคัญมาก — กันข้อมูลหาย) ──
+  const fbHdr=['รหัสพนักงาน','ชื่อจริง','นามสกุล','Status',
+    'Feedback การอบรม (ผลการเรียนรู้/ทักษะ)',
+    'พฤติกรรมระหว่างอบรม (บันทึกเพิ่มเติม)',
+    'Tag พฤติกรรม',
+    'ดาว: ความรู้ผลิตภัณฑ์','ดาว: ทักษะการขาย','ดาว: การจัดการข้อโต้แย้ง','ดาว: ความพร้อมขึ้นปฏิบัติงาน',
+    'เหตุผลลาออก'];
+  const fbRows=[fbHdr];
+  DATA.forEach(e=>{
+    const s=st(e.empId);
+    const tags=Object.keys(s.behavTags||{}).filter(k=>s.behavTags[k]).join(', ');
+    const ratings=s.ratings||{};
+    fbRows.push([
+      e.empId, e.firstTh||'', e.lastTh||'', e.status,
+      s.feedbackTrain||'',
+      s.feedbackBehav||'',
+      tags,
+      ratings['ความรู้ผลิตภัณฑ์']||'',
+      ratings['ทักษะการขาย']||'',
+      ratings['การจัดการข้อโต้แย้ง']||'',
+      ratings['ความพร้อมขึ้นปฏิบัติงาน']||'',
+      s.resignReason||''
+    ]);
+  });
+  const ws3=XLSX.utils.aoa_to_sheet(fbRows);
+  ws3['!cols']=[{wch:12},{wch:14},{wch:16},{wch:10},{wch:60},{wch:60},{wch:30},{wch:8},{wch:8},{wch:8},{wch:8},{wch:30}];
+  XLSX.utils.book_append_sheet(wb,ws3,'Feedback');
+
+  const today=new Date();
+  const dd=String(today.getDate()).padStart(2,'0');
+  const mm=String(today.getMonth()+1).padStart(2,'0');
+  const yy=today.getFullYear();
+  XLSX.writeFile(wb,`NTL_Newcomer_Backup_${yy}${mm}${dd}.xlsx`);
+  notify(`บันทึกสำเร็จ · ${DATA.length} คน · รวม Feedback & พฤติกรรมทั้งหมด`,'info');
+}
+
+function analyze(emp){
+  const out=[];
+  // product knowledge
+  PRODUCTS.forEach(p=>{
+    const s=bestProdScore(emp,p);
+    if(s===null)return;
+    if(s>=9) out.push({type:'strength',t:`ผลิตภัณฑ์ ${p.key} — ${p.th}`,d:`ทำคะแนนได้ ${s}/10 ผ่านเกณฑ์ระดับดีมาก แสดงความเข้าใจผลิตภัณฑ์นี้ชัดเจน`});
+    else if(s>=8) out.push({type:'watch',t:`ผลิตภัณฑ์ ${p.key} — ${p.th}`,d:`ได้ ${s}/10 ผ่านเกณฑ์ครั้งแรก ควรทบทวนเพื่อยกระดับความมั่นใจ`});
+    else out.push({type:'focus',t:`ผลิตภัณฑ์ ${p.key} — ${p.th}`,d:`ได้ ${s}/10 ต่ำกว่าเกณฑ์ ควรเข้ารับการ RE-TEST และติวเสริมเนื้อหาผลิตภัณฑ์นี้`});
+  });
+  // RP + weak dims
+  const bd=rpBreakdown(emp);
+  if(bd){
+    const weak=bd.filter(x=>x.val<60).sort((a,b)=>a.val-b.val);
+    const strong=bd.filter(x=>x.val>=75).sort((a,b)=>b.val-a.val);
+    if(strong.length) out.push({type:'strength',t:'จุดแข็งใน Role Play',d:`ทำได้ดีในด้าน ${strong.slice(0,2).map(x=>x.label.split(' /')[0]).join(', ')}`});
+    if(weak.length) out.push({type:'focus',t:'จุดที่ต้องพัฒนาใน Role Play',d:`ควรฝึกเพิ่มด้าน ${weak.slice(0,2).map(x=>x.label.split(' /')[0]).join(', ')} ซึ่งเป็นทักษะสำคัญต่อการปิดการขาย`});
+  }
+  return out;
+}
+
+function renderReport(){
+  const emp=DATA.find(e=>e.empId===current);
+  if(!emp){return;}
+  document.getElementById('crumbName').textContent=(emp.firstTh||'')+' '+(emp.lastTh||'');
+  const s=st(emp.empId);
+  const nm=(emp.firstTh||'')+' '+(emp.lastTh||'');
+  const enm=(emp.firstEn||'')+' '+(emp.lastEn||'');
+  const col=avatarColor(emp.empId||nm);
+  const stCls=emp.status==='Active'?'st-active':'st-resigned';
+  const evalDate=emp.rpDate||'-';
+
+  // product rows
+  const prodRows=PRODUCTS.map(p=>{
+    const cells=p.cols.map(c=>{const v=emp[c];const cl=scoreClass(v);const disp=(v==null||v==='-')?'—':v;return `<td><span class="scorechip ${cl}">${disp}</span></td>`;}).join('');
+    const best=bestProdScore(emp,p);
+    const verdict=best===null?'<span class="sc-none">ไม่มีข้อมูล</span>':best>=9?'<span class="scorechip sc-pass">ผ่าน (ดีมาก)</span>':best>=8?'<span class="scorechip sc-retest">ผ่านเกณฑ์</span>':'<span class="scorechip sc-fail">ต่ำกว่าเกณฑ์</span>';
+    return `<tr><td class="name">${p.key} <small>· ${p.th}</small></td>${cells}<td>${verdict}</td></tr>`;
+  }).join('');
+
+  const rp=rpPct(emp);
+  const bd=rpBreakdown(emp)||[];
+  const gaugeCol=rp===null?'#ccc':rp>=70?'var(--good)':rp>=50?'var(--brand)':'var(--bad)';
+  const circ=2*Math.PI*52; const off=rp===null?circ:circ*(1-rp/100);
+
+  const findings=analyze(emp);
+  const fHtml=findings.map(f=>{
+    const map={strength:['f-strength','✓'],watch:['f-watch','!'],focus:['f-focus','▲']};
+    const[cl,ic]=map[f.type];
+    return `<div class="finding ${cl}"><div class="ic">${ic}</div><div class="ftxt"><h4>${f.t}</h4><p>${f.d}</p></div></div>`;
+  }).join('');
+
+  const behavPos=['ตั้งใจเรียน','มีส่วนร่วม','ตรงต่อเวลา','ถามคำถามดี','ช่วยเหลือเพื่อน','จดบันทึกดี','ปรับตัวเร็ว'];
+  const behavNeg=['มาสาย','เงียบ/ไม่มีส่วนร่วม','ต้องกระตุ้น','ขาดความมั่นใจ'];
+  const chip=(t,neg)=>`<button class="${neg?'neg':''} ${s.behavTags[t]?'on':''}" onclick="toggleBehav('${t}')">${t}</button>`;
+
+  // product knowledge average (best score per product, averaged)
+  const prodScores=PRODUCTS.map(p=>bestProdScore(emp,p)).filter(x=>x!==null);
+  const prodAvg=prodScores.length?(prodScores.reduce((a,b)=>a+b,0)/prodScores.length):null;
+  const scoreSummary=[
+    {lbl:'ความรู้ผลิตภัณฑ์',big:prodAvg===null?'—':prodAvg.toFixed(1)+'/10',sub:'เฉลี่ย '+prodScores.length+' ผลิตภัณฑ์',pct:prodAvg?prodAvg/10:0},
+    {lbl:'QA-Test',big:emp.QA??'—',sub:'ประเมินคุณภาพสาย',pct:0.8},
+    {lbl:'Role Play',big:rp===null?'—':rp+'%',sub:'คะแนนรวม RP',pct:rp?rp/100:0},
+  ].map(c=>`<div class="scard"><div class="lbl">${c.lbl}</div><div class="big">${c.big}</div><div class="sub">${c.sub}</div><div class="bar" style="width:${Math.round(c.pct*100)}%"></div></div>`).join('');
+
+  document.getElementById('content').innerHTML=`
+  <div class="sheet" id="reportSheet">
+    <div class="rpt-head">
+      <div class="eyebrow">Individual Training Report · Batch ${emp.batch}</div>
+      <div class="who">
+        <span class="avatar" style="width:52px;height:52px;font-size:20px;background:${col}">${(emp.nick||emp.firstTh||'?').slice(0,1)}</span>
+        <div><div class="bigname">${nm} <span class="bignick">(${emp.nick||'-'})</span></div>
+        <div style="color:var(--muted);font-size:13.5px">${enm}</div></div>
+        <span class="statuspill ${stCls}">${emp.status}</span>
+      </div>
+    </div>
+    <div class="metagrid">
+      <div class="metacell"><div class="k">รหัสพนักงาน</div><div class="v mono">${emp.empId}</div></div>
+      <div class="metacell"><div class="k">วันที่อบรม</div><div class="v">${emp.trainDate||'-'}</div></div>
+      <div class="metacell"><div class="k">วันที่ประเมิน RP</div><div class="v">${evalDate}</div></div>
+      <div class="metacell metacell-edit">
+        <div class="k">Team Manager (TM) <span class="edit-hint">✎ แก้ได้</span></div>
+        <input class="meta-input" id="meta_tm" value="${emp.tm||''}" placeholder="ชื่อ TM"
+          onchange="updateEmpField('${emp.empId}','tm',this.value)" list="tm-list">
+        <datalist id="tm-list">${[...new Set(DATA.map(e=>e.tm).filter(Boolean))].sort().map(t=>`<option value="${t}">`).join('')}</datalist>
+      </div>
+      <div class="metacell metacell-edit">
+        <div class="k">Group Leader (GL) <span class="edit-hint">✎ แก้ได้</span></div>
+        <input class="meta-input" id="meta_gl" value="${emp.gl||''}" placeholder="ชื่อ GL"
+          onchange="updateEmpField('${emp.empId}','gl',this.value)" list="gl-list">
+        <datalist id="gl-list">${Object.keys(GL_TM_MAP).sort().map(g=>`<option value="${g}">`).join('')}</datalist>
+      </div>
+      <div class="metacell"><div class="k">Trainer</div><div class="v">${TRAINER}</div></div>
+    </div>
+
+    <div class="section">
+      <div class="sec-title"><span class="num">1</span>สรุปคะแนนภาพรวม</div>
+      <div class="scorecards">${scoreSummary}</div>
+    </div>
+
+    <div class="section">
+      <div class="sec-title"><span class="num">2</span>คะแนนทดสอบความรู้ผลิตภัณฑ์ (Product Knowledge Test)</div>
+      <table class="prod">
+        <thead><tr><th style="text-align:left">ผลิตภัณฑ์</th><th>ครั้งที่ 1</th><th>RE-TEST</th><th>ผลประเมิน</th></tr></thead>
+        <tbody>${prodRows}</tbody>
+      </table>
+      <div class="legend">
+        <span><i style="background:var(--good)"></i>ผ่านดีมาก ≥ 9</span>
+        <span><i style="background:var(--brand)"></i>ผ่านเกณฑ์ 8</span>
+        <span><i style="background:var(--bad)"></i>ต่ำกว่าเกณฑ์ &lt; 8</span>
+        <span><i style="background:var(--line)"></i>— ไม่ได้สอบ</span>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="sec-title"><span class="num">3</span>ผลการประเมิน Role Play (รายละเอียด)</div>
+      <div class="rp-wrap">
+        <div class="rp-gauge">
+          <svg width="140" height="140"><circle cx="70" cy="70" r="52" stroke="var(--line-soft)" stroke-width="14" fill="none"/>
+          <circle cx="70" cy="70" r="52" stroke="${gaugeCol}" stroke-width="14" fill="none" stroke-linecap="round" stroke-dasharray="${circ}" stroke-dashoffset="${off}"/></svg>
+          <div class="center"><div class="pct">${rp===null?'—':rp+'%'}</div><div class="cap">RP รวม</div></div>
+        </div>
+        <div class="rp-bars">
+          ${bd.map(d=>{if(d.val===null)return `<div class="rp-item"><div class="rp-top"><span>${d.label}</span><b style="color:var(--muted)">—</b></div><div class="rp-track"></div></div>`;const c=d.val>=75?'var(--good)':d.val>=60?'var(--brand)':'var(--bad)';return `<div class="rp-item"><div class="rp-top"><span>${d.label} <small style="color:var(--muted)">(${d.w}%)</small></span><b>${d.val}%</b></div><div class="rp-track"><div class="rp-fill" style="width:${d.val}%;background:${c}"></div></div></div>`;}).join('')}
+        </div>
+      </div>
+      ${coachHtml(emp)}
+    </div>
+
+    <div class="section">
+      <div class="sec-title"><span class="num">4</span>การวิเคราะห์ & จุดที่ควรพัฒนา</div>
+      <div class="analysis">${fHtml||'<p style="color:var(--muted)">ไม่มีข้อมูลคะแนนเพียงพอสำหรับการวิเคราะห์</p>'}</div>
+    </div>
+    ${emp.status==='Resigned'?`
+    <div class="section resign-section">
+      <div class="sec-title"><span class="num">!</span>ข้อมูลการลาออก</div>
+      <div class="resign-grid">
+        <div class="resign-meta">
+          <div class="rm-item"><div class="rm-k">วันที่ลาออก</div><div class="rm-v">${emp.resignDate||'-'}</div></div>
+          <div class="rm-item"><div class="rm-k">ระยะเวลาทำงาน</div><div class="rm-v">${emp.workDays||'-'}</div></div>
+        </div>
+        <div class="fb-field">
+          <label>เหตุผลของการลาออก</label>
+          <textarea id="fbResign" placeholder="ระบุเหตุผลของการลาออก..." oninput="saveFb('resignReason',this.value)">${s.resignReason||''}</textarea>
+        </div>
+      </div>
+    </div>`:''}
+
+    <div class="section">
+      <div class="sec-title"><span class="num">5</span>Feedback การอบรม & พฤติกรรมระหว่างอบรม</div>
+      <div style="margin-bottom:16px">
+        <label style="font-size:12px;font-weight:600;color:var(--steel);display:block;margin-bottom:8px">พฤติกรรมที่สังเกตได้ (แตะเพื่อเลือก)</label>
+        <div class="behav-chips">${behavPos.map(t=>chip(t,false)).join('')}${behavNeg.map(t=>chip(t,true)).join('')}</div>
+      </div>
+      <div class="fb-grid">
+        <div class="fb-field">
+          <label>Feedback ในการอบรม (ผลการเรียนรู้ / ทักษะ)</label>
+          <textarea id="fbTrain" placeholder="เช่น เข้าใจเนื้อหาผลิตภัณฑ์ M และ L ได้ดี ตอบคำถามได้ตรงประเด็น ควรฝึกการนำเสนอผลิตภัณฑ์ C เพิ่มเติม..." oninput="saveFb('feedbackTrain',this.value)">${s.feedbackTrain}</textarea>
+        </div>
+        <div class="fb-field">
+          <label>พฤติกรรมระหว่างอบรม (บันทึกเพิ่มเติม)</label>
+          <textarea id="fbBehav" placeholder="เช่น มีความกระตือรือร้น มีส่วนร่วมในกิจกรรมกลุ่ม ตรงต่อเวลา ปรับตัวเข้ากับทีมได้ดี..." oninput="saveFb('feedbackBehav',this.value)">${s.feedbackBehav}</textarea>
+        </div>
+      </div>
+      <div style="margin-top:16px">
+        <label style="font-size:12px;font-weight:600;color:var(--steel);display:block;margin-bottom:10px">ประเมินทักษะรวม (ให้ดาว)</label>
+        ${['ความรู้ผลิตภัณฑ์','ทักษะการขาย','การจัดการข้อโต้แย้ง','ความพร้อมขึ้นปฏิบัติงาน'].map(r=>ratingRow(emp.empId,r,s)).join('')}
+      </div>
+      <div class="saved-note" id="savedNote"></div>
+    </div>
+  </div>`;
+}
+
+function coachHtml(emp){
+  const c=rpCoaching(emp);
+  if(!c)return '';
+  const bandMeta={low:['ต้องพัฒนาเร่งด่วน','coach-low','▲'],mid:['ควรฝึกเสริม','coach-mid','!'],high:['ระดับดี','coach-high','✓']};
+  const cards=c.items.map((it,i)=>{
+    const[bl,cls,ic]=bandMeta[it.band];
+    const recs=it.recs.map(r=>`<li>${r}</li>`).join('');
+    return `<div class="coach-card ${cls}">
+      <div class="coach-h"><span class="coach-ic">${ic}</span>
+        <span class="coach-title">${it.label}</span>
+        <span class="coach-badge">${it.val}% · ${bl}</span></div>
+      <ul class="coach-recs">${recs}</ul></div>`;
+  }).join('');
+  return `<div class="coach-wrap">
+    <div class="coach-summary"><span class="coach-star">◆</span><div><b>สรุป & แนวทางโค้ช Role Play</b><p>${c.summary}</p>
+      ${c.priority&&c.priority.band!=='high'?`<p class="coach-prio">ควรเริ่มพัฒนาที่ทักษะ <b>${c.priority.label.split(' /')[0]}</b> เป็นลำดับแรก (${c.priority.val}%)</p>`:''}</div></div>
+    <div class="coach-grid">${cards}</div>
+  </div>`;
+}
+
+function ratingRow(id,label,s){
+  const v=s.ratings[label]||0;
+  const stars=[1,2,3,4,5].map(n=>`<button class="${n<=v?'on':''}" onclick="setRating('${label}',${n})">★</button>`).join('');
+  return `<div class="rating-row"><span class="rl">${label}</span><span class="stars" data-r="${label}">${stars}</span></div>`;
+}
+function setRating(label,n){const s=st(current);s.ratings[label]=n;const row=document.querySelector(`.stars[data-r="${label}"]`);[...row.children].forEach((b,i)=>b.classList.toggle('on',i<n));flashSaved();}
+function toggleBehav(t){const s=st(current);s.behavTags[t]=!s.behavTags[t];const btns=document.querySelectorAll('.behav-chips button');btns.forEach(b=>{if(b.textContent===t)b.classList.toggle('on',s.behavTags[t]);});flashSaved();}
+function saveFb(k,v){st(current)[k]=v;flashSaved();}
+
+// Update GL or TM directly on the employee record
+function updateEmpField(empId,field,val){
+  const emp=DATA.find(e=>e.empId===empId); if(!emp)return;
+  const old=emp[field];
+  emp[field]=val.trim();
+  // if GL changed and new GL has a known TM mapping, auto-update TM too
+  if(field==='gl'){
+    const autoTM=GL_TM_MAP[val.trim()];
+    if(autoTM){
+      emp.tm=autoTM;
+      const tmInput=document.getElementById('meta_tm');
+      if(tmInput)tmInput.value=autoTM;
+    }
+  }
+  // update the crumb/roster display name if needed
+  buildRoster();
+  flashSaved();
+  notify(`อัปเดต ${field==='gl'?'GL':'TM'}: "${old}" → "${val.trim()}"${field==='gl'&&GL_TM_MAP[val.trim()]?' (TM อัปเดตตามอัตโนมัติ)':''}`, 'info');
+}
+let flashT;function flashSaved(){const n=document.getElementById('savedNote');if(!n)return;n.textContent='✓ บันทึกในหน้านี้แล้ว';n.style.opacity=1;clearTimeout(flashT);flashT=setTimeout(()=>n.style.opacity=0,1400);}
+
+// ===== toast notifications =====
+// ===== theme toggle (light/dark) =====
+const SUN='<circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/>';
+const MOON='<path d="M21 12.8A9 9 0 1111.2 3 7 7 0 0021 12.8z"/>';
+function applyTheme(dark){
+  document.documentElement.setAttribute('data-theme',dark?'dark':'light');
+  const ic=document.getElementById('themeIcon');
+  if(ic)ic.innerHTML=dark?MOON:SUN;
+  const btn=document.getElementById('themeBtn');
+  if(btn)btn.title=dark?'สลับเป็นโหมดสว่าง':'สลับเป็นโหมดมืด';
+}
+function toggleTheme(){
+  const dark=document.documentElement.getAttribute('data-theme')!=='dark';
+  applyTheme(dark);
+}
+
+let toastT;
+function notify(msg,type){
+  let t=document.getElementById('toast');
+  if(!t){t=document.createElement('div');t.id='toast';document.body.appendChild(t);}
+  t.className='toast '+(type||'info')+' show';
+  t.textContent=msg;
+  clearTimeout(toastT);
+  toastT=setTimeout(()=>t.classList.remove('show'),type==='err'?6000:3500);
+}
+
+// ===== filters/search =====
+document.getElementById('filters').addEventListener('click',e=>{if(e.target.dataset.f){filter=e.target.dataset.f;document.querySelectorAll('#filters button').forEach(b=>b.classList.toggle('on',b===e.target));buildRoster();}});
+document.getElementById('search').addEventListener('input',e=>{query=e.target.value;buildRoster();});
+
+// ===== helpers for export =====
+function collectExport(emp){
+  const s=st(emp.empId);
+  const tags=Object.keys(s.behavTags).filter(k=>s.behavTags[k]);
+  const bd=rpBreakdown(emp)||[];
+  return {emp,s,tags,bd,rp:rpPct(emp),findings:analyze(emp)};
+}
+
+// ===== PDF =====
+function exportPDF(){
+  const emp=DATA.find(e=>e.empId===current);if(!emp)return;
+  const el=document.getElementById('reportSheet');
+  // sync textarea values into DOM so print captures them
+  document.querySelectorAll('textarea').forEach(t=>t.textContent=t.value);
+  if(typeof html2pdf==='undefined'){
+    // fallback: browser print dialog (user picks "Save as PDF")
+    notify('กำลังเปิดหน้าต่างพิมพ์ — เลือกปลายทางเป็น "Save as PDF" ได้เลย','info');
+    setTimeout(()=>window.print(),300);
+    return;
+  }
+  const opt={margin:[8,8,8,8],filename:`Report_${emp.empId}_${emp.firstEn||''}.pdf`,image:{type:'jpeg',quality:.98},html2canvas:{scale:2,useCORS:true},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},pagebreak:{mode:['css','legacy']}};
+  try{ html2pdf().set(opt).from(el).save(); }
+  catch(err){ notify('สร้าง PDF ไม่สำเร็จ ใช้หน้าต่างพิมพ์แทน','info'); setTimeout(()=>window.print(),300); }
+}
+
+// ===== Excel =====
+function exportExcel(){
+  const emp=DATA.find(e=>e.empId===current);if(!emp)return;
+  if(typeof XLSX==='undefined'){notify('โหลดไลบรารี Excel ไม่ได้ — อาจเป็นเพราะไม่มีอินเทอร์เน็ตหรือเครือข่ายบล็อก CDN ลองเชื่อมเน็ตแล้วรีเฟรชอีกครั้ง','err');return;}
+  const {s,tags,bd,rp,findings}=collectExport(emp);
+  const rows=[];
+  rows.push(['รายงานผลการอบรมพนักงานใหม่ · Loan Telesales']);
+  rows.push([]);
+  rows.push(['ชื่อ-นามสกุล',(emp.firstTh||'')+' '+(emp.lastTh||''),'','ชื่อเล่น',emp.nick||'']);
+  rows.push(['First / Surname',(emp.firstEn||'')+' '+(emp.lastEn||''),'','รหัสพนักงาน',emp.empId]);
+  rows.push(['สถานะ',emp.status,'','Batch',emp.batch]);
+  rows.push(['วันที่อบรม',emp.trainDate||'-','','วันที่ประเมิน RP',emp.rpDate||'-']);
+  rows.push(['Team Manager (TM)',emp.tm||'-','','Group Leader (GL)',emp.gl||'-']);
+  rows.push(['Trainer',TRAINER]);
+  rows.push([]);
+  rows.push(['คะแนนทดสอบความรู้ผลิตภัณฑ์']);
+  rows.push(['ผลิตภัณฑ์','รายละเอียด','ครั้งที่ 1','RE-TEST','ผลประเมิน']);
+  PRODUCTS.forEach(p=>{const best=bestProdScore(emp,p);const vd=best===null?'ไม่มีข้อมูล':best>=9?'ผ่าน(ดีมาก)':best>=8?'ผ่านเกณฑ์':'ต่ำกว่าเกณฑ์';rows.push([p.key,p.th,emp[p.cols[0]]??'-',emp[p.cols[1]]??'-',vd]);});
+  rows.push([]);
+  rows.push(['คะแนนสอบภาพรวม']);
+  rows.push(['QA-Test',emp.QA??'-']);
+  rows.push([]);
+  rows.push(['Role Play (รวม)',rp===null?'-':rp+'%']);
+  bd.forEach(d=>rows.push([d.label,d.val+'%']));
+  rows.push([]);
+  const coach=rpCoaching(emp);
+  if(coach){
+    rows.push(['วิเคราะห์ & แนวทางโค้ช Role Play']);
+    rows.push(['สรุป',coach.summary]);
+    if(coach.priority&&coach.priority.band!=='high')rows.push(['เริ่มพัฒนาที่',coach.priority.label.split(' /')[0]+' ('+coach.priority.val+'%)']);
+    rows.push(['ทักษะ','ระดับ','คำแนะนำ']);
+    const bandTh={low:'ต้องพัฒนาเร่งด่วน',mid:'ควรฝึกเสริม',high:'ระดับดี'};
+    coach.items.forEach(it=>{it.recs.forEach((r,ri)=>rows.push([ri===0?it.label+' ('+it.val+'%)':'',ri===0?bandTh[it.band]:'',r]));});
+    rows.push([]);
+  }
+  rows.push(['การวิเคราะห์ & จุดที่ควรพัฒนา']);
+  findings.forEach(f=>rows.push([f.type==='strength'?'จุดแข็ง':f.type==='watch'?'เฝ้าติดตาม':'ต้องพัฒนา',f.t,f.d]));
+  rows.push([]);
+  rows.push(['พฤติกรรมระหว่างอบรม',tags.join(', ')||'-']);
+  rows.push(['Feedback การอบรม',s.feedbackTrain||'-']);
+  rows.push(['บันทึกพฤติกรรม',s.feedbackBehav||'-']);
+  if(emp.status==='Resigned'){
+    rows.push([]);
+    rows.push(['ข้อมูลการลาออก']);
+    rows.push(['วันที่ลาออก',emp.resignDate||'-','ระยะเวลาทำงาน',emp.workDays||'-']);
+    rows.push(['เหตุผลของการลาออก',s.resignReason||'-']);
+  }
+  if(Object.keys(s.ratings).length){rows.push([]);rows.push(['การให้ดาวประเมินทักษะ']);Object.entries(s.ratings).forEach(([k,v])=>rows.push([k,'★'.repeat(v)+' ('+v+'/5)']));}
+  const ws=XLSX.utils.aoa_to_sheet(rows);
+  ws['!cols']=[{wch:22},{wch:34},{wch:12},{wch:12},{wch:16}];
+  const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Report');
+  XLSX.writeFile(wb,`Report_${emp.empId}_${emp.firstEn||''}.xlsx`);
+}
+
+// ===== Word =====
+function exportWord(){
+  const emp=DATA.find(e=>e.empId===current);if(!emp)return;
+  if(typeof docx==='undefined'){notify('โหลดไลบรารี Word ไม่ได้ — อาจเป็นเพราะไม่มีอินเทอร์เน็ตหรือเครือข่ายบล็อก CDN ลองเชื่อมเน็ตแล้วรีเฟรชอีกครั้ง','err');return;}
+  const {s,tags,bd,rp,findings}=collectExport(emp);
+  const {Document,Packer,Paragraph,TextRun,Table,TableRow,TableCell,WidthType,BorderStyle,AlignmentType,HeadingLevel}=docx;
+  const F='TH Sarabun New';
+  const T=(t,o={})=>new TextRun({text:t,font:F,size:o.size||24,bold:o.bold,color:o.color});
+  const P=(runs,o={})=>new Paragraph({children:Array.isArray(runs)?runs:[runs],spacing:{after:o.after??80},alignment:o.align});
+  const cell=(t,o={})=>new TableCell({width:{size:o.w||25,type:WidthType.PERCENTAGE},shading:o.sh?{fill:o.sh}:undefined,children:[P([T(t,{bold:o.bold,size:o.size,color:o.color})],{after:0,align:o.align})]});
+  const border={style:BorderStyle.SINGLE,size:4,color:'D0D0D0'};
+  const tbl=rows=>new Table({width:{size:100,type:WidthType.PERCENTAGE},borders:{top:border,bottom:border,left:border,right:border,insideHorizontal:border,insideVertical:border},rows});
+
+  const kids=[];
+  kids.push(P([T('รายงานผลการอบรมพนักงานใหม่',{bold:true,size:34,color:'1F3A5F'})],{after:40}));
+  kids.push(P([T('Newcomer Loan Telesales Training · Batch '+emp.batch,{size:22,color:'7A848E'})],{after:200}));
+
+  // info table
+  kids.push(tbl([
+    new TableRow({children:[cell('ชื่อ-นามสกุล',{w:25,bold:true,sh:'F2F4F6'}),cell((emp.firstTh||'')+' '+(emp.lastTh||''),{w:25}),cell('ชื่อเล่น',{w:25,bold:true,sh:'F2F4F6'}),cell(emp.nick||'-',{w:25})]}),
+    new TableRow({children:[cell('First / Surname',{bold:true,sh:'F2F4F6'}),cell((emp.firstEn||'')+' '+(emp.lastEn||'')),cell('รหัสพนักงาน',{bold:true,sh:'F2F4F6'}),cell(emp.empId)]}),
+    new TableRow({children:[cell('วันที่อบรม',{bold:true,sh:'F2F4F6'}),cell(emp.trainDate||'-'),cell('วันที่ประเมิน RP',{bold:true,sh:'F2F4F6'}),cell(emp.rpDate||'-')]}),
+    new TableRow({children:[cell('Team Manager',{bold:true,sh:'F2F4F6'}),cell(emp.tm||'-'),cell('Group Leader',{bold:true,sh:'F2F4F6'}),cell(emp.gl||'-')]}),
+    new TableRow({children:[cell('Trainer',{bold:true,sh:'F2F4F6'}),cell(TRAINER),cell('สถานะ',{bold:true,sh:'F2F4F6'}),cell(emp.status)]}),
+  ]));
+  kids.push(P([T('')],{after:160}));
+
+  // product test
+  kids.push(P([T('คะแนนทดสอบความรู้ผลิตภัณฑ์',{bold:true,size:26,color:'1F3A5F'})],{after:100}));
+  const prow=[new TableRow({children:[cell('ผลิตภัณฑ์',{w:40,bold:true,sh:'1F3A5F',color:'FFFFFF'}),cell('ครั้งที่ 1',{w:20,bold:true,sh:'1F3A5F',color:'FFFFFF',align:AlignmentType.CENTER}),cell('RE-TEST',{w:20,bold:true,sh:'1F3A5F',color:'FFFFFF',align:AlignmentType.CENTER}),cell('ผลประเมิน',{w:20,bold:true,sh:'1F3A5F',color:'FFFFFF',align:AlignmentType.CENTER})]})];
+  PRODUCTS.forEach(p=>{const best=bestProdScore(emp,p);const vd=best===null?'ไม่มีข้อมูล':best>=9?'ผ่าน (ดีมาก)':best>=8?'ผ่านเกณฑ์':'ต่ำกว่าเกณฑ์';const vc=best===null?'7A848E':best>=8?'2F8F5B':'C23B3B';prow.push(new TableRow({children:[cell(p.key+' · '+p.th,{w:40}),cell(String(emp[p.cols[0]]??'-'),{w:20,align:AlignmentType.CENTER}),cell(String(emp[p.cols[1]]??'-'),{w:20,align:AlignmentType.CENTER}),cell(vd,{w:20,align:AlignmentType.CENTER,color:vc,bold:true})]}));});
+  kids.push(tbl(prow));
+  kids.push(P([T('')],{after:160}));
+
+  // overall scores
+  kids.push(P([T('คะแนนสอบภาพรวม & Role Play',{bold:true,size:26,color:'1F3A5F'})],{after:100}));
+  kids.push(P([T('QA-Test: ',{bold:true}),T(String(emp.QA??'-'))],{after:100}));
+  kids.push(P([T('Role Play รวม: ',{bold:true}),T((rp===null?'-':rp+'%'),{bold:true,color:'C67F0A',size:26})],{after:60}));
+  const rprow=[new TableRow({children:[cell('ทักษะ',{w:60,bold:true,sh:'F2F4F6'}),cell('คะแนน',{w:40,bold:true,sh:'F2F4F6',align:AlignmentType.CENTER})]})];
+  bd.forEach(d=>rprow.push(new TableRow({children:[cell(d.label,{w:60}),cell(d.val+'%',{w:40,align:AlignmentType.CENTER,color:d.val>=75?'2F8F5B':d.val>=60?'C67F0A':'C23B3B',bold:true})]})));
+  kids.push(tbl(rprow));
+  kids.push(P([T('')],{after:120}));
+
+  // RP coaching
+  const coach=rpCoaching(emp);
+  if(coach){
+    kids.push(P([T('วิเคราะห์ & แนวทางโค้ช Role Play',{bold:true,size:26,color:'1F3A5F'})],{after:80}));
+    kids.push(P([T('สรุป: ',{bold:true}),T(coach.summary)],{after:60}));
+    if(coach.priority&&coach.priority.band!=='high')kids.push(P([T('เริ่มพัฒนาที่: ',{bold:true,color:'C23B3B'}),T(coach.priority.label.split(' /')[0]+' ('+coach.priority.val+'%)',{bold:true})],{after:100}));
+    const bandTh={low:['ต้องพัฒนาเร่งด่วน','C23B3B'],mid:['ควรฝึกเสริม','C67F0A'],high:['ระดับดี','2F8F5B']};
+    coach.items.forEach(it=>{const[bl,bc]=bandTh[it.band];
+      kids.push(P([T('• '+it.label+' ',{bold:true}),T('('+it.val+'% · '+bl+')',{bold:true,color:bc})],{after:30}));
+      it.recs.forEach(r=>kids.push(P([T('   – '+r)],{after:30})));
+    });
+    kids.push(P([T('')],{after:130}));
+  }
+
+  // analysis
+  kids.push(P([T('การวิเคราะห์ & จุดที่ควรพัฒนา',{bold:true,size:26,color:'1F3A5F'})],{after:100}));
+  findings.forEach(f=>{const lbl=f.type==='strength'?'[จุดแข็ง]':f.type==='watch'?'[เฝ้าติดตาม]':'[ต้องพัฒนา]';const c=f.type==='strength'?'2F8F5B':f.type==='watch'?'C67F0A':'C23B3B';kids.push(P([T(lbl+' ',{bold:true,color:c}),T(f.t+' — ',{bold:true}),T(f.d)],{after:80}));});
+  kids.push(P([T('')],{after:120}));
+
+  // feedback
+  kids.push(P([T('Feedback การอบรม & พฤติกรรมระหว่างอบรม',{bold:true,size:26,color:'1F3A5F'})],{after:100}));
+  kids.push(P([T('พฤติกรรมที่สังเกตได้: ',{bold:true}),T(tags.join(', ')||'-')],{after:100}));
+  kids.push(P([T('Feedback ในการอบรม: ',{bold:true}),T(s.feedbackTrain||'-')],{after:100}));
+  kids.push(P([T('บันทึกพฤติกรรมระหว่างอบรม: ',{bold:true}),T(s.feedbackBehav||'-')],{after:100}));
+  if(Object.keys(s.ratings).length){Object.entries(s.ratings).forEach(([k,v])=>kids.push(P([T(k+': ',{bold:true}),T('★'.repeat(v)+'☆'.repeat(5-v)+' ('+v+'/5)',{color:'C67F0A'})],{after:60})));}
+
+  if(emp.status==='Resigned'){
+    kids.push(P([T('')],{after:120}));
+    kids.push(P([T('ข้อมูลการลาออก',{bold:true,size:26,color:'C23B3B'})],{after:80}));
+    kids.push(P([T('วันที่ลาออก: ',{bold:true}),T(emp.resignDate||'-'),T('     ระยะเวลาทำงาน: ',{bold:true}),T(emp.workDays||'-')],{after:60}));
+    kids.push(P([T('เหตุผลของการลาออก: ',{bold:true}),T(s.resignReason||'-')],{after:100}));
+  }
+
+  const doc=new Document({sections:[{properties:{page:{margin:{top:720,bottom:720,left:720,right:720}}},children:kids}]});
+  Packer.toBlob(doc).then(blob=>{const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`Report_${emp.empId}_${emp.firstEn||''}.docx`;a.click();});
+}
+
+applyTheme(false);
+buildRoster();
+showDashboard();
+
+// check library availability shortly after load (gives fallbacks time to resolve)
+window.addEventListener('load',()=>{
+  setTimeout(()=>{
+    const missing=[];
+    if(typeof XLSX==='undefined')missing.push('Excel');
+    if(typeof docx==='undefined')missing.push('Word');
+    if(typeof html2pdf==='undefined')missing.push('PDF');
+    if(missing.length===3){notify('โหลดไลบรารีสำหรับ Export ไม่ได้ — กรุณาเชื่อมต่ออินเทอร์เน็ต แล้วรีเฟรชหน้านี้ (PDF ยังใช้หน้าต่างพิมพ์ได้)','err');}
+  },2500);
+});
+</script>
+</body>
+</html>
